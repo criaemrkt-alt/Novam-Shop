@@ -21,11 +21,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         {store && <div className={store.is_active ? "store-status is-active" : "store-status"}><span />{store.is_active ? "Loja ativa" : "Loja inativa"}</div>}
       </div>
       <p className="dashboard-intro">Construa sua presença passo a passo. Comece pelas informações essenciais que apresentam sua marca aos clientes.</p>
-      <div className="setup-progress">
-        <div className="setup-progress-head"><div><span>Progresso da configuração</span><strong>{store ? "1 de 3 etapas concluída" : "Comece pela primeira etapa"}</strong></div><b>{store ? "33%" : "0%"}</b></div>
-        <div className="progress-track"><span style={{ width: store ? "33%" : "4%" }} /></div>
-        <div className="progress-steps"><span className={store ? "done" : "current"}><i>{store ? "✓" : "1"}</i>Informações</span><span><i>2</i>Identidade visual</span><span><i>3</i>Produtos</span></div>
-      </div>
       <FormMessage error={message.erro} success={message.sucesso} />
 
       <div className="store-builder-grid">
@@ -61,8 +56,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <div className="mini-products"><div><span /></div><div><span /></div><div><span /></div></div>
           <div className="mini-store-footer"><span>Novidades</span><span>Mais vendidos</span><span>Sobre</span></div>
         </div>
-        <div className="public-address"><span>Endereço público</span><strong>novamshop.com/{store?.slug || "sua-loja"}</strong><small>Este será o endereço que você compartilhará com seus clientes.</small></div>
-        <div className="next-step-card"><span>Próxima etapa</span><strong>Construa a identidade visual</strong><p>Logo e banner deixarão essa experiência com a personalidade da sua marca.</p><Link href="/painel/identidade"><i>2</i><span>Configurar identidade</span><b>Continuar →</b></Link></div>
+        <div className="public-address"><span>Endereço público</span><strong>novamshop.com/loja/{store?.slug || "sua-loja"}</strong><small>No desenvolvimento, a loja abre nesta mesma porta do Codespaces.</small>{store&&<Link className="public-store-button" href={`/loja/${store.slug}`} target="_blank">Ver minha loja <b>↗</b></Link>}</div>
       </aside>
       </div>
     </div>
