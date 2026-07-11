@@ -6,82 +6,86 @@ const Arrow = () => (
   </svg>
 );
 
-const Check = () => (
-  <svg aria-hidden="true" viewBox="0 0 20 20" className="size-4" fill="none">
-    <path d="m4 10 4 4 8-9" stroke="currentColor" strokeWidth="1.7" />
+const Bag = () => (
+  <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none">
+    <path d="M6 8h12l1 12H5L6 8Z" stroke="currentColor" strokeWidth="1.5" /><path d="M9 9V6a3 3 0 0 1 6 0v3" stroke="currentColor" strokeWidth="1.5" />
   </svg>
 );
 
 export default function Home() {
   return (
-    <main className="marketing-shell">
-      <header className="marketing-header">
-        <Link href="/" className="brand-mark" aria-label="Novam Shop, início">NOVAM<span>SHOP</span></Link>
-        <nav className="marketing-nav" aria-label="Navegação principal">
-          <a href="#experiencia">Experiência</a>
-          <a href="#como-funciona">Como funciona</a>
-        </nav>
-        <div className="flex items-center gap-3">
-          <Link href="/login" className="header-login">Entrar</Link>
-          <Link href="/cadastro" className="header-cta">Criar loja <Arrow /></Link>
-        </div>
+    <main className="landing-page">
+      <header className="landing-header">
+        <Link href="/" className="landing-logo" aria-label="Novam Shop, início">NOVAM<span>.</span></Link>
+        <nav className="landing-nav" aria-label="Navegação principal"><a href="#produto">O produto</a><a href="#fluxo">Como funciona</a></nav>
+        <div className="landing-header-actions"><Link href="/login">Entrar</Link><Link href="/cadastro" className="landing-header-cta">Criar loja <Arrow /></Link></div>
       </header>
 
-      <section className="hero-section">
-        <div className="hero-copy">
-          <div className="hero-kicker"><span /> Feito para pequenos negócios</div>
-          <h1>Sua loja merece<br />parecer uma <strong>marca.</strong></h1>
-          <p>Crie um catálogo profissional, receba pedidos organizados e continue a conversa no WhatsApp — do jeito simples que seu negócio precisa.</p>
-          <div className="hero-actions">
-            <Link href="/cadastro" className="hero-primary">Começar minha loja <Arrow /></Link>
-            <a href="#experiencia" className="hero-secondary">Conhecer a experiência</a>
-          </div>
-          <div className="hero-proof">
-            <span><Check /> Sem gateway de pagamento</span>
-            <span><Check /> Pronto para o celular</span>
-          </div>
+      <section className="landing-hero">
+        <div className="landing-hero-copy">
+          <p className="landing-eyebrow"><span /> E-commerce simples para pequenos negócios</p>
+          <h1>Uma pequena loja.<br /><em>Com presença de grande marca.</em></h1>
+          <p className="landing-lead">Crie uma loja profissional para seus produtos, organize os pedidos e finalize cada venda pelo WhatsApp — sem complicação e sem aparência de catálogo improvisado.</p>
+          <div className="landing-hero-actions"><Link href="/cadastro">Criar minha loja <Arrow /></Link><a href="#produto">Ver como funciona</a></div>
+          <div className="landing-trust"><span>Loja própria</span><span>Pedidos organizados</span><span>WhatsApp no final</span></div>
         </div>
 
-        <div className="storefront-stage" aria-label="Exemplo de catálogo criado no Novam Shop">
-          <div className="stage-label">Vitrine digital</div>
-          <div className="storefront-window">
-            <div className="storefront-top">
-              <div><span className="store-dot" /> ORBE STUDIO</div>
-              <div className="storefront-links"><span>Novidades</span><span>Coleções</span><span>Bolsa · 02</span></div>
+        <div className="commerce-demo" aria-label="Demonstração de uma loja profissional criada no Novam Shop">
+          <div className="demo-caption">Exemplo de loja criada no Novam Shop</div>
+          <div className="demo-store">
+            <div className="demo-store-header"><strong>MIRA</strong><nav><span>Novidades</span><span>Bolsas</span><span>Acessórios</span></nav><div><Bag /><small>2</small></div></div>
+            <div className="demo-categories"><span className="active">Todos</span><span>Bolsas</span><span>Joias</span><span>Essenciais</span></div>
+            <div className="demo-products">
+              <article><div className="demo-photo photo-bag" /><div><span>Bolsa Siena</span><strong>R$ 289</strong></div></article>
+              <article><div className="demo-photo photo-perfume" /><div><span>Essência Nº 04</span><strong>R$ 159</strong></div></article>
+              <article><div className="demo-photo photo-jewelry" /><div><span>Colar Alba</span><strong>R$ 119</strong></div></article>
             </div>
-            <div className="storefront-grid">
-              <div className="product-visual product-visual-main"><div className="object object-a" /><span>Forma 01</span></div>
-              <div className="product-visual"><div className="object object-b" /><span>Forma 02</span></div>
-              <div className="product-visual"><div className="object object-c" /><span>Forma 03</span></div>
-            </div>
-            <div className="storefront-bottom"><span>Coleção essencial</span><strong>A partir de R$ 89</strong></div>
           </div>
-          <div className="order-float">
-            <div className="order-float-icon"><Check /></div>
-            <div><strong>Pedido organizado</strong><span>Pronto para enviar no WhatsApp</span></div>
+
+          <div className="demo-product-detail">
+            <div className="detail-photo photo-bag" />
+            <div className="detail-content"><p>MIRA · BOLSAS</p><h3>Bolsa Siena</h3><strong>R$ 289,00</strong><span>Cor</span><div className="color-options"><i /><i /><i /></div><button>Adicionar ao carrinho</button></div>
+          </div>
+
+          <div className="demo-cart">
+            <div className="demo-cart-top"><strong>Seu pedido</strong><span>2 itens</span></div>
+            <div className="demo-cart-item"><div className="cart-thumb photo-bag" /><div><strong>Bolsa Siena</strong><span>Caramelo · 1 un.</span></div><b>R$ 289</b></div>
+            <div className="demo-cart-total"><span>Total</span><strong>R$ 408,00</strong></div>
+            <button>Finalizar no WhatsApp <Arrow /></button>
           </div>
         </div>
       </section>
 
-      <section id="experiencia" className="promise-strip">
-        <p>Uma experiência profissional para quem vende — e simples para quem compra.</p>
-        <div><span>01</span> Sua identidade</div><div><span>02</span> Compra fácil</div><div><span>03</span> Atendimento próximo</div>
+      <section className="landing-statement">
+        <p>O Novam Shop não entrega apenas uma lista de produtos.</p>
+        <h2>Ele transforma o que você vende em uma experiência de compra completa.</h2>
+        <div className="statement-index"><span>Catálogo</span><i /><span>Produto</span><i /><span>Carrinho</span><i /><span>Pedido</span><i /><span>WhatsApp</span></div>
       </section>
 
-      <section id="como-funciona" className="how-section">
-        <div className="how-heading"><span>Simples por escolha</span><h2>Do cadastro ao primeiro pedido, sem complicar seu negócio.</h2></div>
-        <div className="how-steps">
-          <article><span>01</span><h3>Monte sua vitrine</h3><p>Configure sua marca, organize categorias e apresente seus produtos com clareza.</p></article>
-          <article><span>02</span><h3>Compartilhe sua loja</h3><p>Use um endereço profissional para divulgar no Instagram, WhatsApp e onde quiser.</p></article>
-          <article><span>03</span><h3>Receba o pedido</h3><p>O cliente escolhe, o pedido fica registrado e a conversa continua no WhatsApp.</p></article>
+      <section id="produto" className="product-experience">
+        <div className="experience-copy"><p className="landing-eyebrow"><span /> Uma loja de verdade</p><h2>O produto é o protagonista. A tecnologia fica nos bastidores.</h2><p>Fotos grandes, categorias claras, variações, promoções e estoque. Seu cliente navega como em uma grande loja — mas conclui a compra no canal que você já usa todos os dias.</p><ul><li><span>01</span>Página individual para cada produto</li><li><span>02</span>Variações de tamanho, cor e modelo</li><li><span>03</span>Carrinho com pedido salvo e organizado</li></ul></div>
+        <div className="experience-visual">
+          <div className="experience-photo photo-shoe" />
+          <div className="experience-product-info"><span>ATELIER N.</span><h3>Sapato Íris</h3><p>Couro natural · acabamento artesanal</p><div><strong>R$ 349</strong><button>Escolher opções</button></div></div>
+          <div className="experience-note"><strong>Estoque por variação</strong><span>O cliente nunca compra acima do disponível.</span></div>
         </div>
       </section>
 
-      <section className="final-cta">
-        <div><span>Seu próximo passo</span><h2>Transforme seus produtos em uma loja de verdade.</h2></div>
-        <Link href="/cadastro">Criar minha loja <Arrow /></Link>
+      <section id="fluxo" className="flow-section">
+        <div className="flow-title"><span>Do seu jeito</span><h2>Profissional para o cliente.<br />Simples para você.</h2></div>
+        <div className="flow-list">
+          <article><span>01</span><div><h3>Monte sua loja</h3><p>Cadastre a marca, categorias, produtos, imagens e variações.</p></div></article>
+          <article><span>02</span><div><h3>Compartilhe seu endereço</h3><p>Divulgue uma loja bonita no Instagram, WhatsApp e onde quiser.</p></div></article>
+          <article><span>03</span><div><h3>Receba pedidos</h3><p>O pedido fica salvo e chega pronto para continuar no WhatsApp.</p></div></article>
+        </div>
       </section>
-      <footer className="marketing-footer"><span className="brand-mark">NOVAM<span>SHOP</span></span><p>Catálogos profissionais para pequenos negócios.</p><span>© 2026</span></footer>
+
+      <section className="brand-impact">
+        <div className="brand-impact-photo photo-accessories" />
+        <div><p>Para negócios que levam sua imagem a sério.</p><h2>Sua loja pode ser pequena.<br /><em>Sua marca não precisa parecer.</em></h2><Link href="/cadastro">Começar agora <Arrow /></Link></div>
+      </section>
+
+      <footer className="landing-footer"><span className="landing-logo">NOVAM<span>.</span></span><p>Lojas profissionais para pequenos negócios.</p><div><Link href="/login">Entrar</Link><Link href="/cadastro">Criar loja</Link></div></footer>
     </main>
   );
 }
