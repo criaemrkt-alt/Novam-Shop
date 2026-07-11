@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
-import Image from "next/image";
 import { notFound } from "next/navigation";
-import { formatMoney } from "@/lib/catalog";
+import { PublicStorefront } from "@/components/public-storefront";
 import { createClient } from "@/lib/supabase/server";
 
 type Store = { id:string; name:string; description:string|null; logo_path:string|null; banner_path:string|null; whatsapp:string; theme_primary:string; theme_accent:string; theme_background:string; theme_text:string };
@@ -16,12 +15,6 @@ export default async function PublicStorePage({ params }: { params:Promise<{slug
   const assetUrl=(path:string|null)=>path?supabase.storage.from("store-assets").getPublicUrl(path).data.publicUrl:null;
   const logoUrl=assetUrl(store.logo_path); const bannerUrl=assetUrl(store.banner_path);
   const theme={"--shop-primary":store.theme_primary,"--shop-accent":store.theme_accent,"--shop-bg":store.theme_background,"--shop-text":store.theme_text} as CSSProperties;
-  return <main className="public-shop" style={theme}>
-    <header className="public-shop-header"><div>{logoUrl?<Image src={logoUrl} width={42} height={42} alt={`Logo ${store.name}`}/>:<i>{store.name.slice(0,1)}</i>}<strong>{store.name}</strong></div><nav><a href="#produtos">Produtos</a><a href={`https://wa.me/${store.whatsapp.replace(/\D/g,"")}`} target="_blank" rel="noreferrer">WhatsApp</a></nav><span>Carrinho · 0</span></header>
-    <section className="public-shop-hero" style={bannerUrl?{backgroundImage:`linear-gradient(90deg,rgba(0,0,0,.58),rgba(0,0,0,.08)),url(${bannerUrl})`}:undefined}><div><span>LOJA OFICIAL</span><h1>{store.description||"Produtos escolhidos com cuidado para você."}</h1><a href="#produtos">Explorar produtos</a></div></section>
-    <section id="produtos" className="public-products"><div className="public-products-heading"><div><span>CATÁLOGO</span><h2>Descubra nossos produtos</h2></div><p>{products.length} {products.length===1?"produto":"produtos"}</p></div>
-      {products.length?<div className="public-product-grid">{products.map(product=>{const image=[...(product.product_images??[])].sort((a,b)=>a.position-b.position)[0];return <article key={product.id}><div className="public-product-photo">{image?<Image src={assetUrl(image.storage_path)!} alt={product.name} fill sizes="(max-width:700px) 50vw, 25vw"/>:<span>{product.name.slice(0,1)}</span>}</div><small>{product.categories?.name||"Novidades"}</small><h3>{product.name}</h3><div>{product.sale_price_cents!==null&&<del>{formatMoney(product.price_cents)}</del>}<strong>{formatMoney(product.sale_price_cents??product.price_cents)}</strong></div></article>})}</div>:<div className="public-empty"><h2>Novidades chegando.</h2><p>Esta loja ainda está preparando os primeiros produtos.</p></div>}
-    </section>
-    <footer className="public-shop-footer"><strong>{store.name}</strong><p>Atendimento e finalização pelo WhatsApp.</p><a href={`https://wa.me/${store.whatsapp.replace(/\D/g,"")}`} target="_blank" rel="noreferrer">Falar com a loja →</a></footer>
-  </main>;
+  const storefrontProducts=products.map(product=>{const image=[...(product.product_images??[])].sort((a,b)=>a.position-b.position)[0];return {id:product.id,name:product.name,description:product.description,price_cents:product.price_cents,sale_price_cents:product.sale_price_cents,category:product.categories?.name??null,image_url:image?assetUrl(image.storage_path):null};});
+  return <main className="public-shop" style={theme}><PublicStorefront store={{name:store.name,description:store.description,logo_url:logoUrl,banner_url:bannerUrl,whatsapp:store.whatsapp}} products={storefrontProducts}/></main>;
 }
