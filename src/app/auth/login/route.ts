@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { formValue, isAllowedFormOrigin, redirectWithMessage } from "@/lib/http";
+import { appUrl, formValue, isAllowedFormOrigin, redirectWithMessage } from "@/lib/http";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
@@ -11,5 +11,5 @@ export async function POST(request: Request) {
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return redirectWithMessage(request, "/login", "erro", "E-mail ou senha inválidos.");
-  return NextResponse.redirect(new URL("/painel", request.url), 303);
+  return NextResponse.redirect(appUrl(request, "/painel"), 303);
 }
