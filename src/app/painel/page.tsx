@@ -14,23 +14,37 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const message = await searchParams;
 
   return (
-    <div className="max-w-3xl">
-      <p className="eyebrow">Configuração</p>
-      <div className="mt-3 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div><h1 className="font-editorial text-4xl tracking-[-0.03em] md:text-5xl">{store ? "Minha loja" : "Crie sua loja"}</h1><p className="mt-3 max-w-xl text-sm leading-6 text-muted">Estas informações formam a identidade básica do seu catálogo.</p></div>
-        {store && <span className={store.is_active ? "status-badge status-active" : "status-badge"}>{store.is_active ? "Loja ativa" : "Loja inativa"}</span>}
+    <div className="dashboard-content">
+      <div className="dashboard-topbar">
+        <div><p>Configuração da loja</p><h1>{store ? "Sua loja" : "Vamos criar sua loja"}</h1></div>
+        {store && <div className={store.is_active ? "store-status is-active" : "store-status"}><span />{store.is_active ? "Loja ativa" : "Loja inativa"}</div>}
       </div>
+      <p className="dashboard-intro">Cuide das informações que seus clientes verão primeiro. Você poderá adicionar a identidade visual na próxima etapa.</p>
       <FormMessage error={message.erro} success={message.sucesso} />
 
-      <form action="/api/store" method="post" className="mt-8 border border-line bg-white p-5 md:p-8">
-        <div className="grid gap-6 sm:grid-cols-2">
-          <label className="field sm:col-span-2"><span>Nome da loja</span><input name="name" required minLength={2} maxLength={100} defaultValue={store?.name ?? ""} placeholder="Ex.: Atelier N." /></label>
-          <label className="field sm:col-span-2"><span>Descrição <small>Opcional</small></span><textarea name="description" rows={4} maxLength={1000} defaultValue={store?.description ?? ""} placeholder="Conte brevemente o que sua loja oferece." /></label>
-          <label className="field"><span>WhatsApp</span><input name="whatsapp" type="tel" required defaultValue={store?.whatsapp ?? ""} placeholder="(11) 99999-9999" /><small>O código do Brasil (+55) é adicionado automaticamente.</small></label>
-          <label className="field"><span>Endereço da loja</span><div className="slug-field"><span>novamshop.com/</span><input name="slug" required minLength={3} maxLength={60} defaultValue={store?.slug ?? ""} placeholder="minha-loja" /></div><small>Use um nome curto e fácil de compartilhar.</small></label>
-        </div>
-        <label className="mt-7 flex items-start gap-3 border-t border-line pt-6"><input className="mt-1 size-4 accent-petrol" name="is_active" type="checkbox" defaultChecked={store?.is_active ?? true} /><span><strong className="block text-sm">Loja ativa</strong><small className="mt-1 block text-xs leading-5 text-muted">Quando desativada, a loja não aparecerá para os clientes.</small></span></label>
-        <div className="mt-8 max-w-52"><SubmitButton pendingText="Salvando…">{store ? "Salvar alterações" : "Criar minha loja"}</SubmitButton></div>
+      <form action="/api/store" method="post" className="store-settings-form">
+        <section className="settings-section">
+          <div className="settings-copy"><span>01</span><div><h2>Informações principais</h2><p>Nome e descrição que representam sua marca no catálogo.</p></div></div>
+          <div className="settings-fields">
+            <label className="field"><span>Nome da loja</span><input name="name" required minLength={2} maxLength={100} defaultValue={store?.name ?? ""} placeholder="Ex.: Atelier N." /></label>
+            <label className="field"><span>Descrição <small>Opcional</small></span><textarea name="description" rows={5} maxLength={1000} defaultValue={store?.description ?? ""} placeholder="Conte brevemente o que sua loja oferece." /></label>
+          </div>
+        </section>
+
+        <section className="settings-section">
+          <div className="settings-copy"><span>02</span><div><h2>Contato e endereço</h2><p>Defina como o cliente encontra e entra em contato com sua loja.</p></div></div>
+          <div className="settings-fields grid gap-5 lg:grid-cols-2">
+            <label className="field"><span>WhatsApp</span><input name="whatsapp" type="tel" required defaultValue={store?.whatsapp ?? ""} placeholder="(11) 99999-9999" /><small>Inclua o DDD. O +55 é adicionado automaticamente.</small></label>
+            <label className="field"><span>Endereço da loja</span><div className="slug-field"><span>novamshop.com/</span><input name="slug" required minLength={3} maxLength={60} defaultValue={store?.slug ?? ""} placeholder="minha-loja" /></div><small>Use um nome curto e fácil de compartilhar.</small></label>
+          </div>
+        </section>
+
+        <section className="settings-section settings-section-last">
+          <div className="settings-copy"><span>03</span><div><h2>Disponibilidade</h2><p>Controle quando sua loja pode ser encontrada pelos clientes.</p></div></div>
+          <div className="settings-fields"><label className="availability-toggle"><input name="is_active" type="checkbox" defaultChecked={store?.is_active ?? true} /><span className="toggle-track"><span /></span><span><strong>Loja ativa</strong><small>Desative para ocultar temporariamente seu catálogo.</small></span></label></div>
+        </section>
+
+        <div className="settings-actions"><p>As alterações ficam disponíveis imediatamente.</p><div><SubmitButton pendingText="Salvando…">{store ? "Salvar alterações" : "Criar minha loja"}</SubmitButton></div></div>
       </form>
     </div>
   );
