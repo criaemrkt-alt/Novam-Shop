@@ -19,9 +19,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div><p>Configuração da loja</p><h1>{store ? "Sua loja" : "Vamos criar sua loja"}</h1></div>
         {store && <div className={store.is_active ? "store-status is-active" : "store-status"}><span />{store.is_active ? "Loja ativa" : "Loja inativa"}</div>}
       </div>
-      <p className="dashboard-intro">Cuide das informações que seus clientes verão primeiro. Você poderá adicionar a identidade visual na próxima etapa.</p>
+      <p className="dashboard-intro">Construa sua presença passo a passo. Comece pelas informações essenciais que apresentam sua marca aos clientes.</p>
+      <div className="setup-progress">
+        <div className="setup-progress-head"><div><span>Progresso da configuração</span><strong>{store ? "1 de 3 etapas concluída" : "Comece pela primeira etapa"}</strong></div><b>{store ? "33%" : "0%"}</b></div>
+        <div className="progress-track"><span style={{ width: store ? "33%" : "4%" }} /></div>
+        <div className="progress-steps"><span className={store ? "done" : "current"}><i>{store ? "✓" : "1"}</i>Informações</span><span><i>2</i>Identidade visual</span><span><i>3</i>Produtos</span></div>
+      </div>
       <FormMessage error={message.erro} success={message.sucesso} />
 
+      <div className="store-builder-grid">
       <form action="/api/store" method="post" className="store-settings-form">
         <section className="settings-section">
           <div className="settings-copy"><span>01</span><div><h2>Informações principais</h2><p>Nome e descrição que representam sua marca no catálogo.</p></div></div>
@@ -46,6 +52,18 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
         <div className="settings-actions"><p>As alterações ficam disponíveis imediatamente.</p><div><SubmitButton pendingText="Salvando…">{store ? "Salvar alterações" : "Criar minha loja"}</SubmitButton></div></div>
       </form>
+      <aside className="store-preview-column">
+        <div className="preview-heading"><div><span>Preview da loja</span><strong>Como sua marca começa a aparecer</strong></div><i>Ao vivo</i></div>
+        <div className="store-mini-preview">
+          <div className="mini-store-header"><div className="mini-logo">{(store?.name ?? "N").slice(0, 1).toUpperCase()}</div><strong>{store?.name || "Nome da sua loja"}</strong><span>Bolsa · 0</span></div>
+          <div className="mini-store-hero"><span>NOVA COLEÇÃO</span><h3>{store?.description || "Sua marca, seus produtos, sua história."}</h3><button>Ver produtos</button></div>
+          <div className="mini-products"><div><span /></div><div><span /></div><div><span /></div></div>
+          <div className="mini-store-footer"><span>Novidades</span><span>Mais vendidos</span><span>Sobre</span></div>
+        </div>
+        <div className="public-address"><span>Endereço público</span><strong>novamshop.com/{store?.slug || "sua-loja"}</strong><small>Este será o endereço que você compartilhará com seus clientes.</small></div>
+        <div className="next-step-card"><span>Próxima etapa</span><strong>Construa a identidade visual</strong><p>Logo e banner deixarão essa experiência com a personalidade da sua marca.</p><div><i>2</i><span>Identidade visual</span><b>Em breve</b></div></div>
+      </aside>
+      </div>
     </div>
   );
 }
