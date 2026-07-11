@@ -1,15 +1,16 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { createClient } from "@/lib/supabase/server";
 
-type Store = { name: string; description: string | null; slug: string; whatsapp: string; is_active: boolean };
+type Store = { name: string; description: string | null; slug: string; whatsapp: string; is_active: boolean; logo_path:string|null; banner_path:string|null };
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ erro?: string; sucesso?: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const { data } = await supabase.from("stores").select("name, description, slug, whatsapp, is_active").eq("owner_id", user.id).maybeSingle();
+  const { data } = await supabase.from("stores").select("name, description, slug, whatsapp, is_active, logo_path, banner_path").eq("owner_id", user.id).maybeSingle();
   const store = data as Store | null;
   const message = await searchParams;
 
@@ -61,7 +62,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <div className="mini-store-footer"><span>Novidades</span><span>Mais vendidos</span><span>Sobre</span></div>
         </div>
         <div className="public-address"><span>Endereço público</span><strong>novamshop.com/{store?.slug || "sua-loja"}</strong><small>Este será o endereço que você compartilhará com seus clientes.</small></div>
-        <div className="next-step-card"><span>Próxima etapa</span><strong>Construa a identidade visual</strong><p>Logo e banner deixarão essa experiência com a personalidade da sua marca.</p><div><i>2</i><span>Identidade visual</span><b>Em breve</b></div></div>
+        <div className="next-step-card"><span>Próxima etapa</span><strong>Construa a identidade visual</strong><p>Logo e banner deixarão essa experiência com a personalidade da sua marca.</p><Link href="/painel/identidade"><i>2</i><span>Configurar identidade</span><b>Continuar →</b></Link></div>
       </aside>
       </div>
     </div>
