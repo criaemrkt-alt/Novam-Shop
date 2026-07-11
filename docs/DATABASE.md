@@ -40,7 +40,7 @@ O bloqueio definitivo contra venda acima do estoque deve ocorrer na função tra
 
 ## Arquivos
 
-Buckets e políticas de Storage serão versionados quando o fluxo de upload for implementado. Caminho proposto: `{owner_id}/{store_id}/...`, com escrita do proprietário e leitura pública somente dos arquivos efetivamente usados por lojas/produtos ativos.
+O bucket público `store-assets` recebe logo, banner e fotos de produtos em JPG, PNG ou WebP, limitados a 5 MB. Os caminhos seguem `{owner_id}/{store_id}/...`. As políticas de `storage.objects` permitem escrita somente quando a primeira pasta corresponde ao usuário autenticado. A migration está em `supabase/migrations/202607110001_storage_buckets.sql` e deve ser aplicada antes de testar uploads.
 
 ## Migration inicial
 
