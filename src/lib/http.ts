@@ -12,6 +12,12 @@ export function isAllowedFormOrigin(request: Request) {
   const origin = request.headers.get("origin");
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
   if (!origin || !siteUrl) return true;
-  try { return new URL(origin).origin === new URL(siteUrl).origin; }
+  try {
+    const requestOrigin = new URL(origin);
+    if (process.env.NODE_ENV === "development" && requestOrigin.hostname.endsWith(".app.github.dev")) {
+      return true;
+    }
+    return requestOrigin.origin === new URL(siteUrl).origin;
+  }
   catch { return false; }
 }
