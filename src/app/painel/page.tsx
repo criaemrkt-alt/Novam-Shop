@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { createClient } from "@/lib/supabase/server";
-import { saveStore } from "./actions";
 
 type Store = { name: string; description: string | null; slug: string; whatsapp: string; is_active: boolean };
 
@@ -23,7 +22,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       </div>
       <FormMessage error={message.erro} success={message.sucesso} />
 
-      <form action={saveStore} className="mt-8 border border-line bg-white p-5 md:p-8">
+      <form action="/api/store" method="post" className="mt-8 border border-line bg-white p-5 md:p-8">
         <div className="grid gap-6 sm:grid-cols-2">
           <label className="field sm:col-span-2"><span>Nome da loja</span><input name="name" required minLength={2} maxLength={100} defaultValue={store?.name ?? ""} placeholder="Ex.: Atelier N." /></label>
           <label className="field sm:col-span-2"><span>Descrição <small>Opcional</small></span><textarea name="description" rows={4} maxLength={1000} defaultValue={store?.description ?? ""} placeholder="Conte brevemente o que sua loja oferece." /></label>
