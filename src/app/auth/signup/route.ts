@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { formValue, isAllowedFormOrigin, redirectWithMessage } from "@/lib/http";
+import { appUrl, formValue, isAllowedFormOrigin, redirectWithMessage } from "@/lib/http";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
@@ -18,6 +18,6 @@ export async function POST(request: Request) {
     options: { data: { display_name: name }, emailRedirectTo: `${siteUrl}/auth/callback?next=/painel` },
   });
   if (error) return redirectWithMessage(request, "/cadastro", "erro", error.message);
-  if (data.session) return NextResponse.redirect(new URL("/painel", request.url), 303);
+  if (data.session) return NextResponse.redirect(appUrl(request, "/painel"), 303);
   return redirectWithMessage(request, "/login", "sucesso", "Conta criada. Confira seu e-mail para confirmar o cadastro.");
 }
