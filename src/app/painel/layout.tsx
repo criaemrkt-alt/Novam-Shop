@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { logout } from "@/app/(auth)/actions";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -7,7 +6,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <header className="border-b border-line bg-white">
         <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 md:px-10">
           <Link href="/painel" className="text-xl font-semibold tracking-[-0.04em]">NOVAM<span className="text-petrol">.</span></Link>
-          <form action={logout}><button className="text-sm font-medium text-muted transition-colors hover:text-ink" type="submit">Sair</button></form>
+          <form action="/auth/logout" method="post"><button className="text-sm font-medium text-muted transition-colors hover:text-ink" type="submit">Sair</button></form>
         </div>
       </header>
       <div className="mx-auto grid max-w-7xl md:grid-cols-[220px_1fr]">
