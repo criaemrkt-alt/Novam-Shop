@@ -541,3 +541,43 @@ button { color:inherit; }
   @keyframes landing-enter { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
   @keyframes demo-drift { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-5px); } }
 }
+
+/* Internal navigation — modern product UI, still recognizably Novam */
+.dashboard-sidebar { width:auto; padding:24px 16px 18px; background:#0b3537; border-right:1px solid rgba(255,255,255,.06); box-shadow:none; }
+.sidebar-brand-row { display:flex; height:42px; align-items:center; justify-content:space-between; padding:0 8px; }
+.sidebar-brand { display:flex; align-items:center; gap:10px; color:#fff; }
+.sidebar-brand > span { display:grid; width:32px; height:32px; place-items:center; border-radius:9px; background:#faf9f6; color:var(--deep-petrol); font-size:13px; font-weight:850; box-shadow:0 5px 16px rgba(0,0,0,.16); }
+.sidebar-brand strong { font-size:14px; font-weight:800; letter-spacing:-.035em; }
+.sidebar-plan { padding:4px 6px; border:1px solid rgba(255,255,255,.13); border-radius:5px; color:#86aaa8; font-size:7px; font-weight:800; letter-spacing:.1em; }
+.sidebar-workspace { position:relative; display:flex; min-height:66px; margin-top:25px; flex-direction:column; justify-content:center; gap:5px; padding:0 48px 0 13px; border:1px solid rgba(255,255,255,.09); border-radius:10px; background:rgba(255,255,255,.045); }
+.sidebar-workspace > span { color:#7da09e; font-size:8px; font-weight:700; }
+.sidebar-workspace > strong { color:#f5f7f6; font-size:11px; font-weight:650; }
+.sidebar-workspace > i { position:absolute; right:11px; display:grid; width:27px; height:27px; place-items:center; border-radius:8px; background:rgba(255,255,255,.1); color:#d8e5e3; font-size:8px; font-style:normal; font-weight:800; }
+.dashboard-nav { gap:7px; margin-top:34px; }
+.dashboard-nav > p { margin:0 0 8px 12px; color:#6f9492; font-size:8px; font-weight:750; letter-spacing:.12em; }
+.dashboard-nav > a,.dashboard-nav > span { min-height:48px; gap:11px; padding:0 11px; border:1px solid transparent; border-radius:9px; color:#91adab; font-size:11px; font-weight:570; transition:background .2s,border-color .2s,color .2s,transform .2s; }
+.dashboard-nav > a:hover { background:rgba(255,255,255,.055); color:#fff; transform:translateX(2px); }
+.dashboard-nav > a > i,.dashboard-nav > span > i { display:grid; width:30px; height:30px; flex:none; place-items:center; border-radius:8px; background:rgba(255,255,255,.045); color:#92afad; font-style:normal; }
+.dashboard-nav > a > i svg,.dashboard-nav > span > i svg { width:17px; height:17px; }
+.dashboard-nav .dashboard-nav-active { border-color:rgba(255,255,255,.1); background:rgba(255,255,255,.09); color:#fff; box-shadow:0 8px 22px rgba(0,0,0,.09); }
+.dashboard-nav .dashboard-nav-active::before { display:none; }
+.dashboard-nav .dashboard-nav-active > i { background:#f4f5f2; color:var(--deep-petrol); }
+.dashboard-nav > span { opacity:.6; }
+.dashboard-nav small { padding:4px 5px; border-radius:4px; background:rgba(255,255,255,.055); color:#88a5a3; font-size:6px; letter-spacing:.05em; }
+.sidebar-note { margin-top:auto; border:1px solid rgba(255,255,255,.09); border-radius:10px; padding:15px; background:rgba(255,255,255,.035); }
+.sidebar-note > div { display:flex; align-items:center; justify-content:space-between; }
+.sidebar-note > div > span { color:#7fa4a2; font-size:7px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }
+.sidebar-note > div > b { display:grid; width:22px; height:22px; place-items:center; border-radius:6px; background:rgba(255,255,255,.08); color:#b9cfcd; font-size:7px; }
+.sidebar-note > strong { display:block; margin-top:12px; color:#f3f6f5; font-size:11px; font-weight:650; }
+.sidebar-note p { margin-top:6px; color:#86a4a2; font-size:9px; line-height:1.5; }
+.sidebar-logout { min-height:45px; align-items:center; padding:12px 10px 0; color:#7f9f9d; transition:color .2s; }
+.sidebar-logout:hover { color:#fff; }
+.sidebar-logout svg { width:15px; transition:transform .2s; }.sidebar-logout:hover svg { transform:translateX(2px); }
+
+/* The product area uses a cleaner contemporary hierarchy than the marketing site. */
+.dashboard-topbar h1,.settings-copy h2,.setup-progress-head strong,.preview-heading strong,.mini-store-header strong,.next-step-card strong { font-family:inherit; letter-spacing:-.035em; }
+.dashboard-topbar h1 { font-size:clamp(2.35rem,4vw,3.65rem); font-weight:680; }
+.settings-copy h2 { font-size:16px; font-weight:680; }
+.setup-progress-head strong { font-size:16px; font-weight:650; }
+.preview-heading strong { font-size:14px; font-weight:650; }
+.next-step-card strong { font-size:15px; font-weight:680; }
