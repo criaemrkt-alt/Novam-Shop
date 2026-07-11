@@ -4,11 +4,18 @@ import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { createClient } from "@/lib/supabase/server";
 
+const palettes = [
+  { id:"novam", name:"Novam", colors:["#083D40","#1F4D4F","#FAF9F6","#111111"] },
+  { id:"terracota", name:"Terracota", colors:["#6F3528","#B4674F","#FBF7F2","#211815"] },
+  { id:"rose", name:"Rose", colors:["#542F36","#A46B77","#FFF8F7","#211719"] },
+  { id:"olive", name:"Oliva", colors:["#344236","#75836C","#FAF8F0","#171B17"] },
+];
+
 export default async function BrandingPage({ searchParams }: { searchParams: Promise<{ erro?: string; sucesso?: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const { data: store } = await supabase.from("stores").select("name, description, logo_path, banner_path").eq("owner_id", user.id).maybeSingle();
+  const { data: store } = await supabase.from("stores").select("name, description, logo_path, banner_path, theme_preset, theme_primary, theme_accent, theme_background, theme_text").eq("owner_id", user.id).maybeSingle();
   if (!store) redirect("/painel?erro=Crie+sua+loja+antes+de+configurar+a+identidade.");
   const message = await searchParams;
   const assetUrl = (path: string | null) => path ? supabase.storage.from("store-assets").getPublicUrl(path).data.publicUrl : null;
@@ -22,13 +29,15 @@ export default async function BrandingPage({ searchParams }: { searchParams: Pro
         <div className="feature-form-heading"><span>Arquivos da marca</span><h2>Logo e banner</h2><p>JPG, PNG ou WebP, com até 5 MB por arquivo.</p></div>
         <label className="upload-field"><span>Logo da loja</span><input name="logo" type="file" accept="image/jpeg,image/png,image/webp" /><small>Prefira uma imagem quadrada, com fundo simples.</small></label>
         <label className="upload-field"><span>Banner principal</span><input name="banner" type="file" accept="image/jpeg,image/png,image/webp" /><small>Recomendação: imagem horizontal com boa área de respiro.</small></label>
+        <div className="palette-field"><span>Paleta da loja</span><p>Escolha uma base pronta ou marque “Personalizada” para ajustar cada cor.</p><div className="palette-presets">{palettes.map(palette=><label key={palette.id}><input type="radio" name="theme_preset" value={palette.id} defaultChecked={store.theme_preset===palette.id}/><span className="palette-swatch">{palette.colors.map(color=><i key={color} style={{background:color}}/>)}</span><strong>{palette.name}</strong></label>)}<label><input type="radio" name="theme_preset" value="custom" defaultChecked={store.theme_preset==="custom"}/><span className="palette-custom-icon">+</span><strong>Personalizada</strong></label></div></div>
+        <div className="custom-colors"><label><span>Principal</span><input type="color" name="theme_primary" defaultValue={store.theme_primary}/><small>{store.theme_primary}</small></label><label><span>Destaque</span><input type="color" name="theme_accent" defaultValue={store.theme_accent}/><small>{store.theme_accent}</small></label><label><span>Fundo</span><input type="color" name="theme_background" defaultValue={store.theme_background}/><small>{store.theme_background}</small></label><label><span>Texto</span><input type="color" name="theme_text" defaultValue={store.theme_text}/><small>{store.theme_text}</small></label></div>
         <SubmitButton pendingText="Enviando…">Salvar identidade visual</SubmitButton>
       </form>
       <aside className="brand-live-preview">
         <div className="preview-heading"><div><span>Preview da vitrine</span><strong>O que seu cliente verá</strong></div><i>Ao vivo</i></div>
-        <div className="brand-preview-window">
+        <div className="brand-preview-window" style={{ background:store.theme_background, color:store.theme_text }}>
           <div className="brand-preview-header">{logoUrl ? <Image src={logoUrl} alt="Logo atual da loja" width={30} height={30} /> : <i>{store.name.slice(0, 1)}</i>}<strong>{store.name}</strong><span>Menu</span></div>
-          <div className="brand-preview-banner" style={bannerUrl ? { backgroundImage: `url(${bannerUrl})` } : undefined}><div><small>NOVA COLEÇÃO</small><h2>{store.description || "Produtos escolhidos para fazer parte da sua história."}</h2><button>Explorar produtos</button></div></div>
+          <div className="brand-preview-banner" style={{ backgroundColor:store.theme_primary, ...(bannerUrl ? { backgroundImage: `url(${bannerUrl})` } : {}) }}><div style={{background:store.theme_primary}}><small>NOVA COLEÇÃO</small><h2>{store.description || "Produtos escolhidos para fazer parte da sua história."}</h2><button style={{color:store.theme_primary}}>Explorar produtos</button></div></div>
           <div className="brand-preview-products"><i /><i /><i /></div>
         </div>
       </aside>
