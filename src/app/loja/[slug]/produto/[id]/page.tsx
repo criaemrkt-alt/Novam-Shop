@@ -1,0 +1,17 @@
+import type { CSSProperties } from "react";
+import { notFound } from "next/navigation";
+import { PublicProductDetail } from "@/components/public-product-detail";
+import { createClient } from "@/lib/supabase/server";
+
+export default async function ProductPage({params}:{params:Promise<{slug:string;id:string}>}) {
+  const {slug,id}=await params; const supabase=await createClient();
+  const {data:store}=await supabase.from("stores").select("id, name, logo_path, theme_primary, theme_accent, theme_background, theme_text").eq("slug",slug).eq("is_active",true).maybeSingle();
+  if(!store)notFound();
+  const {data:product}=await supabase.from("products").select("id, name, description, price_cents, sale_price_cents, track_stock, stock_quantity, categories(name), product_images(storage_path, position)").eq("id",id).eq("store_id",store.id).eq("is_active",true).maybeSingle();
+  if(!product)notFound();
+  const assetUrl=(path:string|null)=>path?supabase.storage.from("store-assets").getPublicUrl(path).data.publicUrl:null;
+  const images=[...(product.product_images??[])].sort((a,b)=>a.position-b.position).map(image=>assetUrl(image.storage_path)!).filter(Boolean);
+  const theme={"--shop-primary":store.theme_primary,"--shop-accent":store.theme_accent,"--shop-bg":store.theme_background,"--shop-text":store.theme_text} as CSSProperties;
+  const category=(product.categories as unknown as {name:string}[]|null)?.[0]?.name??null;
+  return <div className="public-shop product-public-shell" style={theme}><PublicProductDetail store={{id:store.id,slug,name:store.name,logo_url:assetUrl(store.logo_path)}} product={{id:product.id,name:product.name,description:product.description,price_cents:product.price_cents,sale_price_cents:product.sale_price_cents,category:category??null,images,track_stock:product.track_stock,stock_quantity:product.stock_quantity}}/></div>;
+}
