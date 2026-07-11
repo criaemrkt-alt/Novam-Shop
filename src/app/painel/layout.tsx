@@ -6,7 +6,9 @@ const ArrowIcon = () => <svg viewBox="0 0 20 20" className="size-4" fill="none">
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const { data:{ user } } = await supabase.auth.getUser();
-  const { data:store } = user ? await supabase.from("stores").select("name, slug").eq("owner_id",user.id).maybeSingle() : { data:null };
+  if(user)await supabase.rpc("touch_last_activity");
+  const { data:store } = user ? await supabase.from("stores").select("name, slug, publication_status").eq("owner_id",user.id).maybeSingle() : { data:null };
+  const { data:subscription } = user ? await supabase.from("subscriptions").select("financial_status, next_due_at").eq("user_id",user.id).maybeSingle() : { data:null };
   return (
     <div className="dashboard-shell">
       <aside className="dashboard-sidebar">
@@ -20,7 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <form action="/auth/logout" method="post"><button className="sidebar-logout" type="submit"><span>Sair da conta</span><ArrowIcon /></button></form>
       </aside>
       <header className="dashboard-mobile-header"><Link href="/painel" className="brand-mark">NOVAM<span>SHOP</span></Link><form action="/auth/logout" method="post"><button type="submit">Sair</button></form></header>
-      <main className="dashboard-main">{children}</main>
+      <main className="dashboard-main">{store?.publication_status==="suspended"&&<div className="dashboard-account-warning"><strong>Sua loja está temporariamente suspensa.</strong><span>O catálogo público e as alterações comerciais estão indisponíveis. Entre em contato com o suporte do Novam Shop.</span></div>}{subscription?.financial_status==="past_due"&&store?.publication_status!=="suspended"&&<div className="dashboard-account-warning financial"><strong>Há uma pendência na situação da sua conta.</strong><span>Verifique o vencimento ou entre em contato com o suporte.</span></div>}{children}</main>
     </div>
   );
 }
