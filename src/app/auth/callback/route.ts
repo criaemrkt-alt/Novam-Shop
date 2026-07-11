@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { appUrl } from "@/lib/http";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
@@ -9,9 +10,9 @@ export async function GET(request: Request) {
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(new URL(next, url.origin));
+    if (!error) return NextResponse.redirect(appUrl(request, next));
   }
-  const login = new URL("/login", url.origin);
+  const login = appUrl(request, "/login");
   login.searchParams.set("erro", "O link é inválido ou expirou. Tente novamente.");
   return NextResponse.redirect(login);
 }
