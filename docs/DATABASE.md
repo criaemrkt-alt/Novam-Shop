@@ -42,6 +42,10 @@ O bloqueio definitivo contra venda acima do estoque deve ocorrer na função tra
 
 O bucket público `store-assets` recebe logo, banner e fotos de produtos em JPG, PNG ou WebP, limitados a 5 MB. Os caminhos seguem `{owner_id}/{store_id}/...`. As políticas de `storage.objects` permitem escrita somente quando a primeira pasta corresponde ao usuário autenticado. A migration está em `supabase/migrations/202607110001_storage_buckets.sql` e deve ser aplicada antes de testar uploads.
 
+## Tema da loja
+
+As colunas `theme_preset`, `theme_primary`, `theme_accent`, `theme_background` e `theme_text` guardam a identidade escolhida pelo lojista. As cores usam hexadecimal completo e possuem constraints no banco. A migration está em `supabase/migrations/202607110002_store_theme.sql`. A vitrine pública consome essas cores como variáveis CSS, sem executar CSS fornecido pelo usuário.
+
 ## Migration inicial
 
 O SQL completo está em `supabase/migrations/202607100001_initial_schema.sql`. Ele é local e versionado; não foi aplicado ao projeto remoto.
