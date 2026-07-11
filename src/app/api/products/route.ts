@@ -1,0 +1,39 @@
+import { NextResponse } from "next/server";
+import { formValue, isAllowedFormOrigin, redirectWithMessage } from "@/lib/http";
+import { moneyToCents, safeFileName, slugify, validImage } from "@/lib/catalog";
+import { createClient } from "@/lib/supabase/server";
+
+export async function POST(request: Request) {
+  if (!isAllowedFormOrigin(request)) return new NextResponse("Origem inválida", { status: 403 });
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return redirectWithMessage(request, "/login", "erro", "Sua sessão expirou.");
+  const { data: store } = await supabase.from("stores").select("id").eq("owner_id", user.id).maybeSingle();
+  if (!store) return redirectWithMessage(request, "/painel", "erro", "Crie sua loja primeiro.");
+  const formData = await request.formData();
+  const name = formValue(formData, "name");
+  const description = formValue(formData, "description");
+  const categoryId = formValue(formData, "category_id") || null;
+  const priceCents = moneyToCents(formValue(formData, "price"));
+  const saleRaw = formValue(formData, "sale_price");
+  const salePriceCents = saleRaw ? moneyToCents(saleRaw) : null;
+  const trackStock = formData.get("track_stock") === "on";
+  const stockQuantity = trackStock ? Number.parseInt(formValue(formData, "stock_quantity"), 10) : null;
+  if (!name || name.length > 160 || description.length > 5000) return redirectWithMessage(request, "/painel/produtos", "erro", "Revise o nome e a descrição do produto.");
+  if (priceCents < 0 || (salePriceCents !== null && (salePriceCents < 0 || salePriceCents >= priceCents))) return redirectWithMessage(request, "/painel/produtos", "erro", "Revise os preços. O promocional deve ser menor que o normal.");
+  if (trackStock && (!Number.isInteger(stockQuantity) || stockQuantity! < 0)) return redirectWithMessage(request, "/painel/produtos", "erro", "Informe um estoque válido.");
+  if (categoryId) {
+    const { data: category } = await supabase.from("categories").select("id").eq("id", categoryId).eq("store_id", store.id).maybeSingle();
+    if (!category) return redirectWithMessage(request, "/painel/produtos", "erro", "Categoria inválida.");
+  }
+  const { data: product, error } = await supabase.from("products").insert({ store_id: store.id, category_id: categoryId, name, slug: slugify(name), description: description || null, price_cents: priceCents, sale_price_cents: salePriceCents, is_active: formData.get("is_active") === "on", track_stock: trackStock, stock_mode: "product", stock_quantity: stockQuantity }).select("id").single();
+  if (error?.code === "23505") return redirectWithMessage(request, "/painel/produtos", "erro", "Já existe um produto com esse nome/endereço.");
+  if (error || !product) return redirectWithMessage(request, "/painel/produtos", "erro", "Não foi possível criar o produto.");
+  const files = formData.getAll("images").filter(validImage).slice(0, 5);
+  for (const [position, file] of files.entries()) {
+    const path = `${user.id}/${store.id}/products/${product.id}/${safeFileName(file.name)}`;
+    const upload = await supabase.storage.from("store-assets").upload(path, file, { contentType: file.type });
+    if (!upload.error) await supabase.from("product_images").insert({ product_id: product.id, storage_path: path, alt_text: name, position });
+  }
+  return redirectWithMessage(request, "/painel/produtos", "sucesso", "Produto cadastrado.");
+}
