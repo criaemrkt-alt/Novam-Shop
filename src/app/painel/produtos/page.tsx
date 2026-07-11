@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { formatMoney } from "@/lib/catalog";
@@ -34,8 +35,8 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
           </form>
         </details>
         <div className="product-list">{products.length === 0 ? <div className="empty-state"><span>01</span><h2>Seu primeiro produto começa aqui.</h2><p>Cadastre uma peça para começar a construir sua vitrine.</p></div> : products.map(product => <article key={product.id}>
-          <div className="product-list-image">{imageUrl(product.product_images?.[0]?.storage_path) ? <Image src={imageUrl(product.product_images[0].storage_path)!} alt="" width={64} height={72} /> : <span>{product.name.slice(0,1)}</span>}</div>
-          <div className="product-list-copy"><span>{product.categories?.name || "Sem categoria"}</span><strong>{product.name}</strong><small>{product.track_stock ? `${product.stock_quantity ?? 0} em estoque` : "Estoque ilimitado"}</small></div>
+          <Link href={`/painel/produtos/${product.id}`} className="product-list-image" aria-label={`Editar ${product.name}`}>{imageUrl(product.product_images?.[0]?.storage_path) ? <Image src={imageUrl(product.product_images[0].storage_path)!} alt="" width={64} height={72} /> : <span>{product.name.slice(0,1)}</span>}</Link>
+          <div className="product-list-copy"><span>{product.categories?.name || "Sem categoria"}</span><Link href={`/painel/produtos/${product.id}`}>{product.name}</Link><small>{product.track_stock ? `${product.stock_quantity ?? 0} em estoque` : "Estoque ilimitado"}</small></div>
           <div className="product-list-price">{product.sale_price_cents !== null && <del>{formatMoney(product.price_cents)}</del>}<strong>{formatMoney(product.sale_price_cents ?? product.price_cents)}</strong></div>
           <form action="/api/products/status" method="post"><input type="hidden" name="id" value={product.id} /><input type="hidden" name="is_active" value={String(!product.is_active)} /><button className={product.is_active ? "status-pill active" : "status-pill"} type="submit">{product.is_active ? "Ativo" : "Pausado"}</button></form>
         </article>)}</div>
