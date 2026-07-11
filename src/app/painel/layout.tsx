@@ -1,22 +1,25 @@
 import Link from "next/link";
 
+const StoreIcon = () => <svg viewBox="0 0 24 24" className="size-5" fill="none"><path d="M4 9h16l-1-5H5L4 9Zm1 0v11h14V9M9 20v-6h6v6" stroke="currentColor" strokeWidth="1.5" /></svg>;
+const BoxIcon = () => <svg viewBox="0 0 24 24" className="size-5" fill="none"><path d="m4 7 8-4 8 4-8 4-8-4Zm0 0v10l8 4 8-4V7M12 11v10" stroke="currentColor" strokeWidth="1.5" /></svg>;
+const OrdersIcon = () => <svg viewBox="0 0 24 24" className="size-5" fill="none"><path d="M6 3h12v18H6V3Zm3 5h6M9 12h6M9 16h4" stroke="currentColor" strokeWidth="1.5" /></svg>;
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-warm-white text-ink">
-      <header className="border-b border-line bg-white">
-        <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 md:px-10">
-          <Link href="/painel" className="text-xl font-semibold tracking-[-0.04em]">NOVAM<span className="text-petrol">.</span></Link>
-          <form action="/auth/logout" method="post"><button className="text-sm font-medium text-muted transition-colors hover:text-ink" type="submit">Sair</button></form>
-        </div>
-      </header>
-      <div className="mx-auto grid max-w-7xl md:grid-cols-[220px_1fr]">
-        <aside className="hidden min-h-[calc(100vh-72px)] border-r border-line bg-white px-5 py-8 md:block">
-          <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">Gerenciar</p>
-          <nav><Link className="block border-l-2 border-petrol bg-warm-white px-4 py-3 text-sm font-semibold" href="/painel">Minha loja</Link></nav>
-          <p className="mt-8 px-4 text-xs leading-5 text-muted">Produtos e pedidos serão liberados nas próximas etapas.</p>
-        </aside>
-        <main className="min-w-0 px-5 py-8 md:px-10 md:py-12">{children}</main>
-      </div>
+    <div className="dashboard-shell">
+      <aside className="dashboard-sidebar">
+        <Link href="/painel" className="brand-mark brand-mark-light">NOVAM<span>SHOP</span></Link>
+        <nav className="dashboard-nav">
+          <p>Principal</p>
+          <Link className="dashboard-nav-active" href="/painel"><StoreIcon /> Minha loja</Link>
+          <span><BoxIcon /> Produtos <small>Em breve</small></span>
+          <span><OrdersIcon /> Pedidos <small>Em breve</small></span>
+        </nav>
+        <div className="sidebar-note"><span>Próxima etapa</span><p>Cadastre categorias e produtos para colocar sua loja no ar.</p></div>
+        <form action="/auth/logout" method="post"><button className="sidebar-logout" type="submit">Sair da conta <span>→</span></button></form>
+      </aside>
+      <header className="dashboard-mobile-header"><Link href="/painel" className="brand-mark">NOVAM<span>SHOP</span></Link><form action="/auth/logout" method="post"><button type="submit">Sair</button></form></header>
+      <main className="dashboard-main">{children}</main>
     </div>
   );
 }
