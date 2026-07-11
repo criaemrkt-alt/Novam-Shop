@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 
 export const formValue = (formData: FormData, key: string) => String(formData.get(key) ?? "").trim();
 
+export function appUrl(request: Request, path: string) {
+  return new URL(path, process.env.NEXT_PUBLIC_SITE_URL ?? request.url);
+}
+
 export function redirectWithMessage(request: Request, path: string, key: "erro" | "sucesso", message: string) {
-  const url = new URL(path, request.url);
+  const url = appUrl(request, path);
   url.searchParams.set(key, message);
   return NextResponse.redirect(url, 303);
 }
