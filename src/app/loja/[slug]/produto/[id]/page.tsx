@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 export default async function ProductPage({params}:{params:Promise<{slug:string;id:string}>}) {
   const {slug,id}=await params; const supabase=await createClient();
   const {data:store}=await supabase.from("stores").select("id, name, logo_path, theme_primary, theme_accent, theme_background, theme_text").eq("slug",slug).eq("is_active",true).maybeSingle();
-  if(!store)notFound();
+  if(!store){const {data:state}=await supabase.rpc("get_public_store_state",{p_slug:slug});if(state?.[0]?.publication_status==="suspended")return <main className="store-unavailable"><div><span>NOVAM SHOP</span><h1>Esta loja está temporariamente indisponível.</h1><p>Por favor, tente novamente mais tarde.</p></div></main>;notFound();}
   const {data:product}=await supabase.from("products").select("id, name, description, price_cents, sale_price_cents, track_stock, stock_quantity, categories(name), product_images(storage_path, position)").eq("id",id).eq("store_id",store.id).eq("is_active",true).maybeSingle();
   if(!product)notFound();
   const assetUrl=(path:string|null)=>path?supabase.storage.from("store-assets").getPublicUrl(path).data.publicUrl:null;
