@@ -26,8 +26,9 @@ export default function Home() {
           <p className="landing-eyebrow"><span /> E-commerce simples para pequenos negócios</p>
           <h1>Uma pequena loja.<br /><em>Com presença de grande marca.</em></h1>
           <p className="landing-lead">Crie uma loja profissional para seus produtos, organize os pedidos e finalize cada venda pelo WhatsApp — sem complicação e sem aparência de catálogo improvisado.</p>
-          <div className="landing-hero-actions"><div><Link href="/cadastro">Criar minha loja <Arrow /></Link><small>Comece por <strong>R$ 29,90/mês</strong></small></div><a href="#produto">Ver como funciona</a></div>
-          <div className="landing-trust"><span>Loja própria</span><span>Pedidos organizados</span><span>WhatsApp no final</span></div>
+          <div className="hero-offer"><span>Plano completo</span><strong><small>R$</small> 29,90 <small>/mês</small></strong><p>Comece agora e publique sua loja assim que terminar a configuração.</p></div>
+          <div className="landing-hero-actions"><div><Link href="/cadastro">Criar minha loja agora <Arrow /></Link><small>Configuração simples · Cancele quando quiser</small></div><a href="#produto">Ver a loja por dentro</a></div>
+          <div className="landing-trust"><span>Sem taxa por venda</span><span>Sem gateway obrigatório</span><span>Atendimento no seu WhatsApp</span></div>
         </div>
 
         <div className="commerce-demo" aria-label="Demonstração de uma loja profissional criada no Novam Shop">
@@ -54,6 +55,13 @@ export default function Home() {
             <button>Finalizar no WhatsApp <Arrow /></button>
           </div>
         </div>
+      </section>
+
+      <section className="decision-strip" aria-label="Principais motivos para começar">
+        <div><strong>Comece hoje</strong><span>Crie a conta e configure sua vitrine.</span></div>
+        <div><strong>Venda com mais confiança</strong><span>Uma apresentação profissional valoriza cada produto.</span></div>
+        <div><strong>R$ 29,90 por mês</strong><span>Um único plano, sem taxa sobre suas vendas.</span></div>
+        <Link href="/cadastro">Quero profissionalizar minha loja <Arrow /></Link>
       </section>
 
       <section className="landing-statement">
@@ -95,11 +103,11 @@ export default function Home() {
       </section>
 
       <section className="pricing-section">
-        <div className="pricing-copy"><p className="landing-eyebrow"><span /> Um plano, sem complicação</p><h2>Sua loja profissional começa aqui.</h2><p>Todos os recursos do Novam Shop em um único plano. Escolha apenas como prefere pagar.</p></div>
+        <div className="pricing-copy"><p className="landing-eyebrow"><span /> Um plano, sem complicação</p><h2>Não deixe seus produtos parecerem menos valiosos do que são.</h2><p>Todos os recursos do Novam Shop em um único plano. Você escolhe apenas como prefere pagar.</p><div className="pricing-reassurance"><strong>Você pode começar hoje.</strong><span>Sem taxa por venda · Sem plano complexo · Cancele quando quiser</span></div></div>
         <div className="pricing-options">
           <div><span>Mensal</span><p><strong>R$ 29,90</strong> /mês</p><small>Cancele quando quiser.</small></div>
           <div className="pricing-annual"><span>Anual <b>Economize R$ 58,80</b></span><p><strong>R$ 300</strong> /ano</p><small>Equivale a R$ 25 por mês.</small></div>
-          <Link href="/cadastro">Criar minha loja <Arrow /></Link>
+          <Link href="/cadastro">Criar minha loja agora <Arrow /></Link>
         </div>
       </section>
 
