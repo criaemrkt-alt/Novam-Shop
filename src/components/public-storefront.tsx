@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { activatePush, supportsWebPush } from "@/lib/push-client";
 import { useStoreCart } from "@/lib/use-store-cart";
 
 type Product = { id:string; name:string; description:string|null; price_cents:number; sale_price_cents:number|null; track_stock:boolean; stock_quantity:number|null; category:string|null; image_url:string|null };
-type Store = { id:string; slug:string; name:string; description:string|null; hero_title:string|null; subtitle:string|null; show_hero_content:boolean; logo_url:string|null; banner_url:string|null; whatsapp:string; promotions_enabled:boolean };
+type Store = { id:string; slug:string; name:string; description:string|null; hero_title:string|null; subtitle:string|null; show_hero_content:boolean; logo_url:string|null; banners:{desktop_url:string;mobile_url:string|null}[]; whatsapp:string; promotions_enabled:boolean };
 
 const money = (cents:number) => new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(cents/100);
 const BagIcon = () => <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 8h14l1 13H4L5 8Z" stroke="currentColor" strokeWidth="1.5"/><path d="M9 9V6a3 3 0 0 1 6 0v3" stroke="currentColor" strokeWidth="1.5"/></svg>;
@@ -16,6 +16,7 @@ export function PublicStorefront({store,products}:{store:Store;products:Product[
   const [activeCategory,setActiveCategory]=useState("Todos");
   const {cart,changeQuantity,remove,toggle,restored,dismissRestored}=useStoreCart(store.slug,store.id);
   const [cartOpen,setCartOpen]=useState(false);
+  const [activeBanner,setActiveBanner]=useState(0); const touchStartX=useRef<number|null>(null);
   const [promoPrompt,setPromoPrompt]=useState(false); const [pushMessage,setPushMessage]=useState<string|null>(null);
   const categories=useMemo(()=>["Todos","Novidades",...Array.from(new Set(products.map(product=>product.category).filter((value):value is string=>Boolean(value)))),"Promoções"].filter((value,index,array)=>array.indexOf(value)===index),[products]);
   const visibleProducts=useMemo(()=>products.filter((product,index)=>activeCategory==="Todos"||(activeCategory==="Novidades"&&index<8)||(activeCategory==="Promoções"&&product.sale_price_cents!==null)||product.category===activeCategory),[activeCategory,products]);
@@ -27,6 +28,8 @@ export function PublicStorefront({store,products}:{store:Store;products:Product[
     const message=[`Olá! Gostaria de finalizar este pedido na ${store.name}:`,"",...lines,"",`Subtotal: ${money(subtotal)}`].join("\n");
     window.open(`https://wa.me/${store.whatsapp.replace(/\D/g,"")}?text=${encodeURIComponent(message)}`,"_blank","noopener,noreferrer");
   };
+  useEffect(()=>{if(store.banners.length<2)return;const timer=window.setInterval(()=>setActiveBanner(current=>(current+1)%store.banners.length),6000);return()=>window.clearInterval(timer);},[store.banners.length]);
+  const moveBanner=(direction:number)=>setActiveBanner(current=>(current+direction+store.banners.length)%store.banners.length);
   useEffect(()=>{
     const key=`novam-promo-prompt:${store.slug}`; const rejected=Number(localStorage.getItem(key)??0); const thirtyDays=30*24*60*60*1000;
     if(!store.promotions_enabled||!supportsWebPush()||!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY||Notification.permission==="denied"||Date.now()-rejected<thirtyDays)return;
@@ -37,7 +40,7 @@ export function PublicStorefront({store,products}:{store:Store;products:Product[
   return <>
     <header className="public-shop-header"><div>{store.logo_url?<Image src={store.logo_url} width={42} height={42} alt={`Logo ${store.name}`}/>:<i>{store.name.slice(0,1)}</i>}<strong>{store.name}</strong></div><nav><a href="#produtos">Produtos</a><a href={`https://wa.me/${store.whatsapp.replace(/\D/g,"")}`} target="_blank" rel="noreferrer">WhatsApp</a></nav><button className="shop-cart-trigger" type="button" onClick={()=>setCartOpen(true)} aria-label={`Abrir sacola com ${count} itens`}><BagIcon/><span>Sacola</span><b>{count}</b></button></header>
 
-    <section className={`public-shop-hero${store.show_hero_content?"":" image-only"}`} style={store.banner_url?{backgroundImage:store.show_hero_content?`linear-gradient(90deg,rgba(0,0,0,.48),rgba(0,0,0,.03)),url(${store.banner_url})`:`url(${store.banner_url})`}:undefined}>{store.show_hero_content&&<div><span>LOJA OFICIAL</span><h1>{store.hero_title||`${store.name}, do seu jeito.`}</h1><a href="#produtos">Ver coleção</a></div>}</section>
+    <section className={`public-shop-hero${store.show_hero_content?"":" image-only"}`} onTouchStart={event=>{touchStartX.current=event.touches[0]?.clientX??null;}} onTouchEnd={event=>{if(touchStartX.current===null)return;const distance=(event.changedTouches[0]?.clientX??touchStartX.current)-touchStartX.current;if(Math.abs(distance)>45)moveBanner(distance>0?-1:1);touchStartX.current=null;}}>{store.banners.length>0&&<div className="shop-hero-media">{store.banners.map((banner,index)=><picture key={banner.desktop_url} className={index===activeBanner?"active":""}>{banner.mobile_url&&<source media="(max-width: 700px)" srcSet={banner.mobile_url}/>}<Image src={banner.desktop_url} alt="" fill priority={index===0} sizes="100vw"/></picture>)}</div>}{store.show_hero_content&&<div className="shop-hero-copy"><span>LOJA OFICIAL</span><h1>{store.hero_title||`${store.name}, do seu jeito.`}</h1><a href="#produtos">Ver coleção</a></div>}{store.banners.length>1&&<div className="shop-hero-controls"><button type="button" onClick={()=>moveBanner(-1)} aria-label="Banner anterior">←</button><div>{store.banners.map((_,index)=><button key={index} type="button" className={index===activeBanner?"active":""} onClick={()=>setActiveBanner(index)} aria-label={`Ver banner ${index+1}`}/>)}</div><button type="button" onClick={()=>moveBanner(1)} aria-label="Próximo banner">→</button></div>}</section>
 
     {store.subtitle&&<section className="public-shop-subtitle"><span>ENCONTRE O SEU</span><p>{store.subtitle}</p></section>}
 
