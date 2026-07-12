@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { FormMessage } from "@/components/form-message";
 import { formatMoney } from "@/lib/catalog";
 import { createClient } from "@/lib/supabase/server";
@@ -19,7 +20,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
       {orders.length===0 ? <div className="empty-state orders-empty"><span>00</span><h2>Os pedidos aparecerão aqui.</h2><p>Quando um cliente finalizar uma compra, você poderá acompanhar e atualizar o atendimento nesta tela.</p></div> : orders.map(order=><article key={order.id}>
         <div><small>#{String(order.order_number).padStart(4,"0")}</small><strong>{new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(order.created_at))}</strong></div>
         <div><strong>{order.customer_name}</strong><small>{order.customer_phone}</small></div><div><strong>{order.order_items.reduce((sum,item)=>sum+item.quantity,0)} itens</strong><small>{order.order_items[0]?.product_name || "Pedido"}</small></div><div><strong>{formatMoney(order.total_cents)}</strong></div>
-        <form action="/api/orders/status" method="post"><input type="hidden" name="id" value={order.id}/><select name="status" defaultValue={order.status} aria-label={`Status do pedido ${order.order_number}`}>{Object.entries(statusLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select><button type="submit">Salvar</button></form>
+        <form action="/api/orders/status" method="post"><input type="hidden" name="id" value={order.id}/><select name="status" defaultValue={order.status} aria-label={`Status do pedido ${order.order_number}`}>{Object.entries(statusLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select><button type="submit">Salvar</button></form><Link className="order-open-link" href={`/painel/pedidos/${order.id}`}>Ver pedido →</Link>
       </article>)}</div>
   </div>;
 }
