@@ -46,6 +46,10 @@ O bucket público `store-assets` recebe logo, banner e fotos de produtos em JPG,
 
 As colunas `theme_preset`, `theme_primary`, `theme_accent`, `theme_background` e `theme_text` guardam a identidade escolhida pelo lojista. As cores usam hexadecimal completo e possuem constraints no banco. A migration está em `supabase/migrations/202607110002_store_theme.sql`. A vitrine pública consome essas cores como variáveis CSS, sem executar CSS fornecido pelo usuário.
 
+## Textos da vitrine
+
+`stores.hero_title` guarda a chamada comercial curta exibida sobre o banner. `stores.subtitle` guarda a frase de apoio exibida abaixo do banner. A descrição completa continua em `stores.description` e passa a compor a seção editorial “Sobre a loja” no final do catálogo. A separação evita usar um único conteúdo para três hierarquias diferentes. Os limites são validados na aplicação e no banco pela migration `supabase/migrations/202607110005_storefront_copy.sql`.
+
 ## Migration inicial
 
 O SQL completo está em `supabase/migrations/202607100001_initial_schema.sql`. Ele é local e versionado; não foi aplicado ao projeto remoto.
