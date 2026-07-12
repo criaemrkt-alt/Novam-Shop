@@ -29,13 +29,13 @@
 
 `products.track_stock = false` representa estoque ilimitado. Quando ativo e `stock_mode = 'product'`, usa-se `products.stock_quantity`. Quando `stock_mode = 'variant'`, cada combinação usa `product_variants.stock_quantity`. As constraints impedem quantidades negativas e configurações incoerentes. Um gatilho normaliza `option_value_ids` e rejeita valores duplicados ou pertencentes a outro produto; a chave composta de categoria também impede relações entre lojas diferentes.
 
-O bloqueio definitivo contra venda acima do estoque deve ocorrer na função transacional de criação do pedido, e não somente na interface. Essa função será criada junto ao fluxo de checkout para validar itens, recalcular preços com dados do servidor, gravar o pedido e baixar estoque atomicamente.
+O bloqueio definitivo contra venda acima do estoque ocorre na RPC transacional `create_public_order`. Ela bloqueia os registros durante a validação, recalcula preços usando o banco, cria pedido e itens e baixa o estoque atomicamente. `orders.checkout_token` torna tentativas repetidas idempotentes. A estrutura está na migration `supabase/migrations/202607120009_transactional_checkout.sql`.
 
 ## Segurança e acesso público
 
 - Leitura pública: loja ativa; categorias e produtos ativos; imagens e opções ligadas a produto público.
 - Escrita administrativa: somente usuário autenticado dono da loja.
-- Pedidos: o dono lê e muda status. Não existe inserção anônima direta nas tabelas; o futuro checkout usará uma RPC `security definer` restrita, validada e transacional.
+- Pedidos: o dono lê e muda status. Não existe inserção anônima direta nas tabelas; o checkout público usa somente a RPC `security definer` validada e transacional. A função recebe IDs e quantidades, nunca aceita preços calculados pelo navegador.
 - Nenhuma service role key deve chegar ao navegador.
 
 ## Arquivos
