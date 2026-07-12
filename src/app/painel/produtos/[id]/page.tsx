@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { createClient } from "@/lib/supabase/server";
 
 type Product = { id:string; name:string; description:string|null; materials:string|null; lead_time:string|null; customization_notes:string|null; category_id:string|null; price_cents:number; sale_price_cents:number|null; is_active:boolean; track_stock:boolean; stock_quantity:number|null; product_images:{ id:string; storage_path:string; position:number }[] };
@@ -20,7 +21,7 @@ export default async function EditProductPage({ params, searchParams }: { params
   const images=[...(product.product_images??[])].sort((a,b)=>a.position-b.position);
   const imageUrl=(path:string)=>supabase.storage.from("store-assets").getPublicUrl(path).data.publicUrl;
   return <div className="dashboard-content subpage-content">
-    <div className="edit-product-back"><Link href="/painel/produtos">← Voltar para produtos</Link></div>
+    <div className="edit-product-back"><Link href="/painel/produtos">← Voltar para produtos</Link><form action="/api/products/status" method="post"><input type="hidden" name="id" value={product.id}/><input type="hidden" name="action" value="delete"/><ConfirmSubmitButton className="edit-product-delete" message={`Excluir ${product.name}? Esta ação não pode ser desfeita.`}>Excluir produto</ConfirmSubmitButton></form></div>
     <div className="dashboard-topbar"><div><p>Edição do produto</p><h1>{product.name}</h1></div><div className={product.is_active?"store-status is-active":"store-status"}><span/>{product.is_active?"Produto ativo":"Produto pausado"}</div></div>
     <p className="dashboard-intro">Atualize as informações que seu cliente verá na vitrine.</p><FormMessage error={message.erro} success={message.sucesso}/>
     <form action="/api/products/update" method="post" encType="multipart/form-data" className="edit-product-layout"><input type="hidden" name="id" value={product.id}/>
@@ -34,7 +35,7 @@ export default async function EditProductPage({ params, searchParams }: { params
         <SubmitButton pendingText="Salvando…">Salvar alterações</SubmitButton>
       </div>
       <aside className="edit-product-media"><div className="preview-heading"><div><span>Galeria</span><strong>{images.length} de 5 imagens</strong></div></div>
-        <div className="edit-product-gallery">{images.length?images.map((image,index)=><div key={image.id} className={index===0?"main-image":""}><Image src={imageUrl(image.storage_path)} alt={`${product.name} ${index+1}`} fill sizes="(max-width: 760px) 50vw, 220px"/></div>):<div className="gallery-empty"><span>{product.name.slice(0,1)}</span><p>Nenhuma imagem enviada.</p></div>}</div>
+        <div className="edit-product-gallery">{images.length?images.map((image,index)=><div key={image.id} className={index===0?"main-image":""}><Image src={imageUrl(image.storage_path)} alt={`${product.name} ${index+1}`} fill sizes="(max-width: 760px) 50vw, 220px"/><span className="gallery-position">{index===0?"Principal":`${index+1}`}</span><div className="gallery-actions"><button type="submit" formAction="/api/products/images" name="image_action" value={`up:${image.id}`} disabled={index===0} aria-label="Mover imagem para cima">↑</button><button type="submit" formAction="/api/products/images" name="image_action" value={`down:${image.id}`} disabled={index===images.length-1} aria-label="Mover imagem para baixo">↓</button><ConfirmSubmitButton formAction="/api/products/images" name="image_action" value={`delete:${image.id}`} message="Remover esta imagem?" className="danger">×</ConfirmSubmitButton></div></div>):<div className="gallery-empty"><span>{product.name.slice(0,1)}</span><p>Nenhuma imagem enviada.</p></div>}</div>
         {images.length<5&&<label className="upload-field"><span>Adicionar imagens</span><input name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple/><small>Você ainda pode adicionar {5-images.length} imagem(ns).</small></label>}
       </aside>
     </form>
