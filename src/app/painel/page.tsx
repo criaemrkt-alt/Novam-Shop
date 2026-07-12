@@ -4,13 +4,13 @@ import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { createClient } from "@/lib/supabase/server";
 
-type Store = { name: string; description: string | null; hero_title:string|null; subtitle:string|null; slug: string; whatsapp: string; is_active: boolean; logo_path:string|null; banner_path:string|null };
+type Store = { name: string; description: string | null; hero_title:string|null; subtitle:string|null; show_hero_content:boolean; slug: string; whatsapp: string; is_active: boolean; logo_path:string|null; banner_path:string|null };
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ erro?: string; sucesso?: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const { data } = await supabase.from("stores").select("name, description, hero_title, subtitle, slug, whatsapp, is_active, logo_path, banner_path").eq("owner_id", user.id).maybeSingle();
+  const { data } = await supabase.from("stores").select("name, description, hero_title, subtitle, show_hero_content, slug, whatsapp, is_active, logo_path, banner_path").eq("owner_id", user.id).maybeSingle();
   const store = data as Store | null;
   const message = await searchParams;
 
@@ -52,7 +52,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div className="preview-heading"><div><span>Preview da loja</span><strong>Como sua marca começa a aparecer</strong></div><i>Ao vivo</i></div>
         <div className="store-mini-preview">
           <div className="mini-store-header"><div className="mini-logo">{(store?.name ?? "N").slice(0, 1).toUpperCase()}</div><strong>{store?.name || "Nome da sua loja"}</strong><span>Bolsa · 0</span></div>
-          <div className="mini-store-hero"><span>NOVA COLEÇÃO</span><h3>{store?.hero_title || `${store?.name||"Sua marca"}, do seu jeito.`}</h3><button>Ver produtos</button></div>
+          <div className={`mini-store-hero${store&&!store.show_hero_content?" image-only":""}`}>{(!store||store.show_hero_content)&&<><span>NOVA COLEÇÃO</span><h3>{store?.hero_title || `${store?.name||"Sua marca"}, do seu jeito.`}</h3><button>Ver produtos</button></>}</div>
           {store?.subtitle&&<div className="mini-store-subtitle">{store.subtitle}</div>}
           <div className="mini-products"><div><span /></div><div><span /></div><div><span /></div></div>
           <div className="mini-store-footer"><span>Novidades</span><span>Mais vendidos</span><span>Sobre</span></div>
