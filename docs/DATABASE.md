@@ -50,6 +50,8 @@ As colunas `theme_preset`, `theme_primary`, `theme_accent`, `theme_background` e
 
 `stores.hero_title` guarda a chamada comercial curta exibida sobre o banner. `stores.subtitle` guarda a frase de apoio exibida abaixo do banner. A descrição completa continua em `stores.description` e passa a compor a seção editorial “Sobre a loja” no final do catálogo. A separação evita usar um único conteúdo para três hierarquias diferentes. Os limites são validados na aplicação e no banco pela migration `supabase/migrations/202607110005_storefront_copy.sql`.
 
+`stores.show_hero_content` permite ao lojista ocultar a chamada, o selo e o CTA sobre o banner, preservando a arte original sem camada de contraste. O subtítulo abaixo do banner permanece independente. A coluna é adicionada pela migration `supabase/migrations/202607110006_optional_hero_content.sql`.
+
 ## Migration inicial
 
 O SQL completo está em `supabase/migrations/202607100001_initial_schema.sql`. Ele é local e versionado; não foi aplicado ao projeto remoto.
