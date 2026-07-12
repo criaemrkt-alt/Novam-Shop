@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DashboardNav } from "@/components/dashboard-nav";
+import { DashboardMobileNav } from "@/components/dashboard-mobile-nav";
 import { createClient } from "@/lib/supabase/server";
 const ArrowIcon = () => <svg viewBox="0 0 20 20" className="size-4" fill="none"><path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" strokeWidth="1.5" /></svg>;
 
@@ -21,7 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         {store&&<Link className="sidebar-view-store" href={`/loja/${store.slug}`} target="_blank"><span>Ver minha loja</span><b>↗</b></Link>}
         <form action="/auth/logout" method="post"><button className="sidebar-logout" type="submit"><span>Sair da conta</span><ArrowIcon /></button></form>
       </aside>
-      <header className="dashboard-mobile-header"><Link href="/painel" className="brand-mark">NOVAM<span>SHOP</span></Link><form action="/auth/logout" method="post"><button type="submit">Sair</button></form></header>
+      <DashboardMobileNav storeName={store?.name||"Minha loja"} storeSlug={store?.slug}/>
       <main className="dashboard-main">{store?.publication_status==="suspended"&&<div className="dashboard-account-warning"><strong>Sua loja está temporariamente suspensa.</strong><span>O catálogo público e as alterações comerciais estão indisponíveis. Entre em contato com o suporte do Novam Shop.</span></div>}{subscription?.financial_status==="past_due"&&store?.publication_status!=="suspended"&&<div className="dashboard-account-warning financial"><strong>Há uma pendência na situação da sua conta.</strong><span>Verifique o vencimento ou entre em contato com o suporte.</span></div>}{children}</main>
     </div>
   );
