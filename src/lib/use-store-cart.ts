@@ -38,7 +38,8 @@ export function useStoreCart(storeSlug:string,storeId?:string) {
 
   const changeQuantity=(id:string,delta:number)=>setCart(current=>{const quantity=(current[id]??0)+delta;if(quantity<=0){const next={...current};delete next[id];return next;}return {...current,[id]:quantity};});
   const remove=(id:string)=>setCart(current=>{const next={...current};delete next[id];return next;});
+  const clear=()=>{setCart({});setRestored(false);};
   const toggle=(id:string)=>setCart(current=>current[id]?Object.fromEntries(Object.entries(current).filter(([key])=>key!==id)):{...current,[id]:1});
   const dismissRestored=()=>setRestored(false);
-  return {cart,changeQuantity,remove,toggle,restored,dismissRestored,hydrated};
+  return {cart,changeQuantity,remove,clear,toggle,restored,dismissRestored,hydrated};
 }
