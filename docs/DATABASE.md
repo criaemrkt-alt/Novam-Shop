@@ -52,6 +52,8 @@ As colunas `theme_preset`, `theme_primary`, `theme_accent`, `theme_background` e
 
 `stores.show_hero_content` permite ao lojista ocultar a chamada, o selo e o CTA sobre o banner, preservando a arte original sem camada de contraste. O subtítulo abaixo do banner permanece independente. A coluna é adicionada pela migration `supabase/migrations/202607110006_optional_hero_content.sql`.
 
+`store_banners` guarda até cinco posições por loja. Cada posição exige `desktop_path` e aceita `mobile_path` opcional; quando não existe versão mobile, a vitrine usa a imagem desktop. A constraint de posição entre 0 e 4, combinada à unicidade `(store_id, position)`, limita estruturalmente o carrossel a cinco banners. A leitura pública exige loja publicada e a escrita usa `can_manage_store`, mantendo isolamento por loja. A migration está em `supabase/migrations/202607110007_store_banners.sql`.
+
 ## Migration inicial
 
 O SQL completo está em `supabase/migrations/202607100001_initial_schema.sql`. Ele é local e versionado; não foi aplicado ao projeto remoto.
