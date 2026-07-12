@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { formatMoney } from "@/lib/catalog";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,7 +14,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const { data: { user } } = await supabase.auth.getUser(); if (!user) redirect("/login");
   const { data: store } = await supabase.from("stores").select("id").eq("owner_id", user.id).maybeSingle(); if (!store) redirect("/painel?erro=Crie+sua+loja+primeiro.");
   const [{ data: categories }, { data: productsData }] = await Promise.all([
-    supabase.from("categories").select("id, name").eq("store_id", store.id).order("position").order("name"),
+    supabase.from("categories").select("id, name, position, is_active").eq("store_id", store.id).order("position").order("name"),
     supabase.from("products").select("id, name, price_cents, sale_price_cents, is_active, track_stock, stock_quantity, categories(name), product_images(storage_path)").eq("store_id", store.id).order("created_at", { ascending:false }),
   ]);
   const products = (productsData ?? []) as unknown as Product[]; const message = await searchParams;
@@ -42,7 +43,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
           <form action="/api/products/status" method="post"><input type="hidden" name="id" value={product.id} /><input type="hidden" name="is_active" value={String(!product.is_active)} /><button className={product.is_active ? "status-pill active" : "status-pill"} type="submit">{product.is_active ? "Ativo" : "Pausado"}</button></form>
         </article>)}</div>
       </div>
-      <aside className="category-panel"><span>Organização</span><h2>Categorias</h2><form action="/api/categories" method="post"><input name="name" required maxLength={80} placeholder="Nova categoria" /><button type="submit">Adicionar</button></form><div>{categories?.length ? categories.map((category, index) => <p key={category.id}><i>{String(index+1).padStart(2,"0")}</i>{category.name}</p>) : <small>As categorias aparecerão aqui.</small>}</div></aside>
+      <aside className="category-panel"><span>Organização</span><h2>Categorias</h2><form action="/api/categories" method="post" className="category-create"><input name="name" required maxLength={80} placeholder="Nova categoria" /><button type="submit">Adicionar</button></form><div className="category-list">{categories?.length ? categories.map((category, index) => <details key={category.id} className={category.is_active?"":"inactive"}><summary><i>{String(index+1).padStart(2,"0")}</i><strong>{category.name}</strong><span>{category.is_active?"Ativa":"Oculta"}</span><b>•••</b></summary><div><form action="/api/categories" method="post" className="category-edit"><input type="hidden" name="action" value="update"/><input type="hidden" name="id" value={category.id}/><input name="name" required maxLength={80} defaultValue={category.name}/><button type="submit">Salvar nome</button></form><div className="category-actions"><form action="/api/categories" method="post"><input type="hidden" name="action" value="move_up"/><input type="hidden" name="id" value={category.id}/><button type="submit" disabled={index===0}>↑ Subir</button></form><form action="/api/categories" method="post"><input type="hidden" name="action" value="move_down"/><input type="hidden" name="id" value={category.id}/><button type="submit" disabled={index===categories.length-1}>↓ Descer</button></form><form action="/api/categories" method="post"><input type="hidden" name="action" value="toggle"/><input type="hidden" name="id" value={category.id}/><button type="submit">{category.is_active?"Ocultar":"Ativar"}</button></form><form action="/api/categories" method="post"><input type="hidden" name="action" value="delete"/><input type="hidden" name="id" value={category.id}/><ConfirmSubmitButton className="danger" message={`Excluir a categoria ${category.name}? Os produtos ficarão sem categoria.`}>Excluir</ConfirmSubmitButton></form></div></div></details>) : <small>As categorias aparecerão aqui.</small>}</div></aside>
     </div>
   </div>;
 }
