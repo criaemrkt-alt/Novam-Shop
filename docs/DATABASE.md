@@ -54,6 +54,10 @@ As colunas `theme_preset`, `theme_primary`, `theme_accent`, `theme_background` e
 
 `store_banners` guarda até cinco posições por loja. Cada posição exige `desktop_path` e aceita `mobile_path` opcional; quando não existe versão mobile, a vitrine usa a imagem desktop. A constraint de posição entre 0 e 4, combinada à unicidade `(store_id, position)`, limita estruturalmente o carrossel a cinco banners. A leitura pública exige loja publicada e a escrita usa `can_manage_store`, mantendo isolamento por loja. A migration está em `supabase/migrations/202607110007_store_banners.sql`.
 
+## Conteúdo comercial do produto
+
+Além de `description`, os produtos podem guardar `materials`, `lead_time` e `customization_notes`. Todos são opcionais e aparecem como informações estruturadas na página individual do produto. Os limites são validados na aplicação e por constraints adicionadas em `supabase/migrations/202607120008_product_sales_details.sql`. Esses campos permanecem sob as mesmas políticas RLS de `products`.
+
 ## Migration inicial
 
 O SQL completo está em `supabase/migrations/202607100001_initial_schema.sql`. Ele é local e versionado; não foi aplicado ao projeto remoto.
