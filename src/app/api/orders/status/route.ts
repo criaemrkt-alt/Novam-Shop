@@ -12,9 +12,10 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const id = formValue(formData, "id");
   const status = formValue(formData, "status");
-  if (!statuses.includes(status as typeof statuses[number])) return redirectWithMessage(request, "/painel/pedidos", "erro", "Status inválido.");
+  const requestedReturn=formValue(formData,"return_to");const returnTo=requestedReturn.startsWith("/painel/pedidos/")?requestedReturn:"/painel/pedidos";
+  if (!statuses.includes(status as typeof statuses[number])) return redirectWithMessage(request, returnTo, "erro", "Status inválido.");
   const { data: store } = await supabase.from("stores").select("id").eq("owner_id", user.id).maybeSingle();
   const { error } = await supabase.from("orders").update({ status }).eq("id", id).eq("store_id", store?.id ?? "");
-  if (error) return redirectWithMessage(request, "/painel/pedidos", "erro", "Não foi possível atualizar o pedido.");
-  return redirectWithMessage(request, "/painel/pedidos", "sucesso", "Status do pedido atualizado.");
+  if (error) return redirectWithMessage(request, returnTo, "erro", "Não foi possível atualizar o pedido.");
+  return redirectWithMessage(request, returnTo, "sucesso", "Status do pedido atualizado.");
 }
