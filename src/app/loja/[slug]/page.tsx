@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
 import { PublicStorefront } from "@/components/public-storefront";
 import { createClient } from "@/lib/supabase/server";
+import { accessibleTextColor, readableColor } from "@/lib/theme-contrast";
 
 type Store = { id:string; name:string; description:string|null; hero_title:string|null; subtitle:string|null; show_hero_content:boolean; logo_path:string|null; whatsapp:string; theme_primary:string; theme_accent:string; theme_background:string; theme_text:string };
 type Product = { id:string; name:string; description:string|null; price_cents:number; sale_price_cents:number|null; track_stock:boolean; stock_quantity:number|null; categories:{name:string}|null; product_images:{storage_path:string;position:number}[] };
@@ -14,7 +15,7 @@ export default async function PublicStorePage({ params }: { params:Promise<{slug
   const products=(productsData??[]) as unknown as Product[];
   const assetUrl=(path:string|null)=>path?supabase.storage.from("store-assets").getPublicUrl(path).data.publicUrl:null;
   const logoUrl=assetUrl(store.logo_path); const banners=(bannersData??[]).map(banner=>({desktop_url:assetUrl(banner.desktop_path)!,mobile_url:assetUrl(banner.mobile_path)}));
-  const theme={"--shop-primary":store.theme_primary,"--shop-accent":store.theme_accent,"--shop-bg":store.theme_background,"--shop-text":store.theme_text} as CSSProperties;
+  const theme={"--shop-primary":store.theme_primary,"--shop-accent":store.theme_accent,"--shop-bg":store.theme_background,"--shop-text":accessibleTextColor(store.theme_text,store.theme_background),"--shop-on-primary":readableColor(store.theme_primary),"--shop-on-accent":readableColor(store.theme_accent)} as CSSProperties;
   const storefrontProducts=products.map(product=>{const image=[...(product.product_images??[])].sort((a,b)=>a.position-b.position)[0];return {id:product.id,name:product.name,description:product.description,price_cents:product.price_cents,sale_price_cents:product.sale_price_cents,track_stock:product.track_stock,stock_quantity:product.stock_quantity,category:product.categories?.name??null,image_url:image?assetUrl(image.storage_path):null};});
   return <main className="public-shop" style={theme}><PublicStorefront store={{id:store.id,slug,name:store.name,description:store.description,hero_title:store.hero_title,subtitle:store.subtitle,show_hero_content:store.show_hero_content,logo_url:logoUrl,banners,whatsapp:store.whatsapp,promotions_enabled:notificationSettings?.promotions_enabled??false}} products={storefrontProducts}/></main>;
 }
