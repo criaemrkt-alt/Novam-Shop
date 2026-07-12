@@ -15,6 +15,7 @@ export async function POST(request: Request) {
   const banner = formData.get("banner");
   const hero_title = formValue(formData, "hero_title");
   const subtitle = formValue(formData, "subtitle");
+  const show_hero_content = formData.get("show_hero_content") === "on";
   if (hero_title.length > 100 || subtitle.length > 180) {
     return redirectWithMessage(request, "/painel/identidade", "erro", "Revise o tamanho da chamada e do subtítulo.");
   }
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
   if ((logo instanceof File && logo.size && !validImage(logo)) || (banner instanceof File && banner.size && !validImage(banner))) {
     return redirectWithMessage(request, "/painel/identidade", "erro", "Use JPG, PNG ou WebP com até 5 MB.");
   }
-  const updates: { logo_path?: string; banner_path?: string; hero_title:string|null; subtitle:string|null; theme_preset:string; theme_primary:string; theme_accent:string; theme_background:string; theme_text:string } = { hero_title:hero_title||null, subtitle:subtitle||null, theme_preset, theme_primary, theme_accent, theme_background, theme_text };
+  const updates: { logo_path?: string; banner_path?: string; hero_title:string|null; subtitle:string|null; show_hero_content:boolean; theme_preset:string; theme_primary:string; theme_accent:string; theme_background:string; theme_text:string } = { hero_title:hero_title||null, subtitle:subtitle||null, show_hero_content, theme_preset, theme_primary, theme_accent, theme_background, theme_text };
   const uploaded: string[] = [];
   for (const [kind, file] of [["logo", logo], ["banner", banner]] as const) {
     if (!validImage(file)) continue;
