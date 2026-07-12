@@ -4,13 +4,13 @@ import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { createClient } from "@/lib/supabase/server";
 
-type Store = { name: string; description: string | null; slug: string; whatsapp: string; is_active: boolean; logo_path:string|null; banner_path:string|null };
+type Store = { name: string; description: string | null; hero_title:string|null; subtitle:string|null; slug: string; whatsapp: string; is_active: boolean; logo_path:string|null; banner_path:string|null };
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ erro?: string; sucesso?: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const { data } = await supabase.from("stores").select("name, description, slug, whatsapp, is_active, logo_path, banner_path").eq("owner_id", user.id).maybeSingle();
+  const { data } = await supabase.from("stores").select("name, description, hero_title, subtitle, slug, whatsapp, is_active, logo_path, banner_path").eq("owner_id", user.id).maybeSingle();
   const store = data as Store | null;
   const message = await searchParams;
 
@@ -26,10 +26,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       <div className="store-builder-grid">
       <form action="/api/store" method="post" className="store-settings-form">
         <section className="settings-section">
-          <div className="settings-copy"><span>01</span><div><h2>Informações principais</h2><p>Nome e descrição que representam sua marca no catálogo.</p></div></div>
+          <div className="settings-copy"><span>01</span><div><h2>Informações principais</h2><p>Nome e história que apresentam sua marca aos clientes.</p></div></div>
           <div className="settings-fields">
             <label className="field"><span>Nome da loja</span><input name="name" required minLength={2} maxLength={100} defaultValue={store?.name ?? ""} placeholder="Ex.: Atelier N." /></label>
-            <label className="field"><span>Descrição <small>Opcional</small></span><textarea name="description" rows={5} maxLength={1000} defaultValue={store?.description ?? ""} placeholder="Conte brevemente o que sua loja oferece." /></label>
+            <label className="field"><span>Sobre a loja <small>Opcional</small></span><textarea name="description" rows={5} maxLength={1000} defaultValue={store?.description ?? ""} placeholder="Conte a história, o cuidado e o que torna sua loja especial." /><small>Este texto aparece em uma seção própria no final do catálogo.</small></label>
           </div>
         </section>
 
@@ -52,7 +52,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div className="preview-heading"><div><span>Preview da loja</span><strong>Como sua marca começa a aparecer</strong></div><i>Ao vivo</i></div>
         <div className="store-mini-preview">
           <div className="mini-store-header"><div className="mini-logo">{(store?.name ?? "N").slice(0, 1).toUpperCase()}</div><strong>{store?.name || "Nome da sua loja"}</strong><span>Bolsa · 0</span></div>
-          <div className="mini-store-hero"><span>NOVA COLEÇÃO</span><h3>{store?.description || "Sua marca, seus produtos, sua história."}</h3><button>Ver produtos</button></div>
+          <div className="mini-store-hero"><span>NOVA COLEÇÃO</span><h3>{store?.hero_title || `${store?.name||"Sua marca"}, do seu jeito.`}</h3><button>Ver produtos</button></div>
+          {store?.subtitle&&<div className="mini-store-subtitle">{store.subtitle}</div>}
           <div className="mini-products"><div><span /></div><div><span /></div><div><span /></div></div>
           <div className="mini-store-footer"><span>Novidades</span><span>Mais vendidos</span><span>Sobre</span></div>
         </div>
