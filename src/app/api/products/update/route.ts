@@ -16,20 +16,23 @@ export async function POST(request: Request) {
   if (!store || !current) return redirectWithMessage(request, "/painel/produtos", "erro", "Produto não encontrado.");
   const name = formValue(formData, "name");
   const description = formValue(formData, "description");
+  const materials = formValue(formData, "materials");
+  const leadTime = formValue(formData, "lead_time");
+  const customizationNotes = formValue(formData, "customization_notes");
   const categoryId = formValue(formData, "category_id") || null;
   const priceCents = moneyToCents(formValue(formData, "price"));
   const saleRaw = formValue(formData, "sale_price");
   const salePriceCents = saleRaw ? moneyToCents(saleRaw) : null;
   const trackStock = formData.get("track_stock") === "on";
   const stockQuantity = trackStock ? Number.parseInt(formValue(formData, "stock_quantity"), 10) : null;
-  if (!name || name.length > 160 || description.length > 5000) return redirectWithMessage(request, back, "erro", "Revise o nome e a descrição.");
+  if (!name || name.length > 160 || description.length > 5000 || materials.length > 500 || leadTime.length > 300 || customizationNotes.length > 1000) return redirectWithMessage(request, back, "erro", "Revise os textos do produto.");
   if (priceCents < 0 || (salePriceCents !== null && (salePriceCents < 0 || salePriceCents >= priceCents))) return redirectWithMessage(request, back, "erro", "O preço promocional deve ser menor que o preço normal.");
   if (trackStock && (!Number.isInteger(stockQuantity) || stockQuantity! < 0)) return redirectWithMessage(request, back, "erro", "Informe um estoque válido.");
   if (categoryId) {
     const { data: category } = await supabase.from("categories").select("id").eq("id", categoryId).eq("store_id", store.id).maybeSingle();
     if (!category) return redirectWithMessage(request, back, "erro", "Categoria inválida.");
   }
-  const { error } = await supabase.from("products").update({ category_id: categoryId, name, slug: slugify(name), description: description || null, price_cents: priceCents, sale_price_cents: salePriceCents, is_active: formData.get("is_active") === "on", track_stock: trackStock, stock_mode: "product", stock_quantity: stockQuantity }).eq("id", id).eq("store_id", store.id);
+  const { error } = await supabase.from("products").update({ category_id: categoryId, name, slug: slugify(name), description: description || null, materials:materials||null, lead_time:leadTime||null, customization_notes:customizationNotes||null, price_cents: priceCents, sale_price_cents: salePriceCents, is_active: formData.get("is_active") === "on", track_stock: trackStock, stock_mode: "product", stock_quantity: stockQuantity }).eq("id", id).eq("store_id", store.id);
   if (error?.code === "23505") return redirectWithMessage(request, back, "erro", "Já existe outro produto com esse nome/endereço.");
   if (error) return redirectWithMessage(request, back, "erro", "Não foi possível salvar as alterações.");
   const { count } = await supabase.from("product_images").select("id", { count: "exact", head: true }).eq("product_id", id);
