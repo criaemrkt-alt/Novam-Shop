@@ -29,7 +29,8 @@ export async function POST(request: Request) {
     const { data: category } = await supabase.from("categories").select("id").eq("id", categoryId).eq("store_id", store.id).maybeSingle();
     if (!category) return redirectWithMessage(request, "/painel/produtos", "erro", "Categoria inválida.");
   }
-  const { data: product, error } = await supabase.from("products").insert({ store_id: store.id, category_id: categoryId, name, slug: slugify(name), description: description || null, materials:materials||null, lead_time:leadTime||null, customization_notes:customizationNotes||null, price_cents: priceCents, sale_price_cents: salePriceCents, is_active: formData.get("is_active") === "on", track_stock: trackStock, stock_mode: "product", stock_quantity: stockQuantity }).select("id").single();
+  const {data:lastProduct}=await supabase.from("products").select("display_position").eq("store_id",store.id).order("display_position",{ascending:false}).limit(1).maybeSingle();
+  const { data: product, error } = await supabase.from("products").insert({ store_id: store.id, category_id: categoryId, name, slug: slugify(name), description: description || null, materials:materials||null, lead_time:leadTime||null, customization_notes:customizationNotes||null, price_cents: priceCents, sale_price_cents: salePriceCents, is_active: formData.get("is_active") === "on", track_stock: trackStock, stock_mode: "product", stock_quantity: stockQuantity, display_position:(lastProduct?.display_position??-1)+1 }).select("id").single();
   if (error?.code === "23505") return redirectWithMessage(request, "/painel/produtos", "erro", "Já existe um produto com esse nome/endereço.");
   if (error || !product) return redirectWithMessage(request, "/painel/produtos", "erro", "Não foi possível criar o produto.");
   const files = formData.getAll("images").filter(validImage).slice(0, 5);
