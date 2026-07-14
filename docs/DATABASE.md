@@ -31,6 +31,18 @@
 
 O bloqueio definitivo contra venda acima do estoque ocorre na RPC transacional `create_public_order`. Ela bloqueia os registros durante a validação, recalcula preços usando o banco, cria pedido e itens e baixa o estoque atomicamente. `orders.checkout_token` torna tentativas repetidas idempotentes. A estrutura está na migration `supabase/migrations/202607120009_transactional_checkout.sql`.
 
+## Variações de produto
+
+Variações são opcionais. Um produto simples mantém `stock_mode = 'product'`; um produto com escolhas usa `stock_mode = 'variant'` mesmo quando o controle de estoque está desligado. Assim, o checkout sempre exige uma variante válida para produtos com tamanho, cor ou modelo.
+
+- `product_options`: define os eixos ordenados, como Tamanho e Cor.
+- `product_option_values`: define e ordena os valores de cada eixo, como P/M/G e Preto/Branco.
+- `product_variants`: representa somente combinações vendáveis. Cada variante pode sobrescrever preço, promoção, SKU, estoque e status.
+- Ausência de uma combinação significa que ela não existe; variante inativa ou com estoque zero não pode ser comprada.
+- Se preço e promoção da variante forem nulos, o checkout usa os valores padrão do produto.
+
+A migration `supabase/migrations/202607140011_product_variations.sql` cria duas RPCs autenticadas e atômicas. `save_owned_product_variations` substitui a configuração completa somente após validar que `auth.uid()` é o proprietário da loja; `disable_owned_product_variations` retorna o item ao modo simples. A mesma migration atualiza `sync_anonymous_cart` para calcular preços e estoques de variantes no servidor. Nenhuma dessas funções aceita preço livre do navegador como valor definitivo de compra.
+
 ## Segurança e acesso público
 
 - Leitura pública: loja ativa; categorias e produtos ativos; imagens e opções ligadas a produto público.
