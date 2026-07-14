@@ -5,20 +5,28 @@ import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { createClient } from "@/lib/supabase/server";
+import { ProductVariationsEditor, type ProductVariationsInput } from "@/components/product-variations-editor";
 
-type Product = { id:string; name:string; description:string|null; materials:string|null; lead_time:string|null; customization_notes:string|null; category_id:string|null; price_cents:number; sale_price_cents:number|null; is_active:boolean; track_stock:boolean; stock_quantity:number|null; product_images:{ id:string; storage_path:string; position:number }[] };
+type Product = { id:string; name:string; description:string|null; materials:string|null; lead_time:string|null; customization_notes:string|null; category_id:string|null; price_cents:number; sale_price_cents:number|null; is_active:boolean; track_stock:boolean; stock_mode:"product"|"variant"; stock_quantity:number|null; product_images:{ id:string; storage_path:string; position:number }[] };
+type Option = { id:string; name:string; position:number; product_option_values:{id:string;value:string;position:number}[] };
+type Variant = { option_value_ids:string[]; sku:string|null; price_cents:number|null; sale_price_cents:number|null; stock_quantity:number|null; is_active:boolean };
 const inputMoney = (cents:number|null) => cents === null ? "" : (cents/100).toFixed(2).replace(".",",");
 
 export default async function EditProductPage({ params, searchParams }: { params:Promise<{id:string}>; searchParams:Promise<{erro?:string;sucesso?:string}> }) {
   const { id } = await params; const message = await searchParams; const supabase = await createClient();
   const { data:{user} } = await supabase.auth.getUser(); if (!user) redirect("/login");
   const { data:store } = await supabase.from("stores").select("id").eq("owner_id",user.id).maybeSingle(); if (!store) redirect("/painel");
-  const [{data:productData},{data:categories}] = await Promise.all([
-    supabase.from("products").select("id, name, description, materials, lead_time, customization_notes, category_id, price_cents, sale_price_cents, is_active, track_stock, stock_quantity, product_images(id, storage_path, position)").eq("id",id).eq("store_id",store.id).maybeSingle(),
+  const [{data:productData},{data:categories},{data:optionsData},{data:variantsData}] = await Promise.all([
+    supabase.from("products").select("id, name, description, materials, lead_time, customization_notes, category_id, price_cents, sale_price_cents, is_active, track_stock, stock_mode, stock_quantity, product_images(id, storage_path, position)").eq("id",id).eq("store_id",store.id).maybeSingle(),
     supabase.from("categories").select("id, name").eq("store_id",store.id).order("name"),
+    supabase.from("product_options").select("id, name, position, product_option_values(id, value, position)").eq("product_id",id).order("position"),
+    supabase.from("product_variants").select("option_value_ids, sku, price_cents, sale_price_cents, stock_quantity, is_active").eq("product_id",id).order("created_at"),
   ]);
   if (!productData) notFound(); const product=productData as unknown as Product;
   const images=[...(product.product_images??[])].sort((a,b)=>a.position-b.position);
+  const options=((optionsData??[]) as unknown as Option[]).sort((a,b)=>a.position-b.position).map(option=>({...option,product_option_values:[...option.product_option_values].sort((a,b)=>a.position-b.position)}));
+  const valueLookup=new Map(options.flatMap(option=>option.product_option_values.map(value=>[value.id,value.value] as const)));
+  const variationInitial:ProductVariationsInput={enabled:product.stock_mode==="variant",track_stock:product.track_stock,options:options.map(option=>({name:option.name,values:option.product_option_values.map(value=>value.value)})),variants:((variantsData??[]) as unknown as Variant[]).map(variant=>({values:options.flatMap(option=>option.product_option_values.filter(value=>variant.option_value_ids.includes(value.id)).map(value=>valueLookup.get(value.id)!)),sku:variant.sku??"",price:inputMoney(variant.price_cents),sale_price:inputMoney(variant.sale_price_cents),stock_quantity:String(variant.stock_quantity??0),is_active:variant.is_active}))};
   const imageUrl=(path:string)=>supabase.storage.from("store-assets").getPublicUrl(path).data.publicUrl;
   return <div className="dashboard-content subpage-content">
     <div className="edit-product-back"><Link href="/painel/produtos">← Voltar para produtos</Link><form action="/api/products/status" method="post"><input type="hidden" name="id" value={product.id}/><input type="hidden" name="action" value="delete"/><ConfirmSubmitButton className="edit-product-delete" message={`Excluir ${product.name}? Esta ação não pode ser desfeita.`}>Excluir produto</ConfirmSubmitButton></form></div>
@@ -31,7 +39,8 @@ export default async function EditProductPage({ params, searchParams }: { params
         <label className="field"><span>Descrição</span><textarea name="description" rows={5} maxLength={5000} defaultValue={product.description??""}/></label>
         <div className="product-sales-fields"><div className="feature-form-heading"><span>Página de vendas</span><h2>Informações complementares</h2><p>Campos opcionais que ajudam o cliente a decidir com segurança.</p></div><div className="form-row"><label className="field"><span>Materiais e acabamento</span><textarea name="materials" rows={3} maxLength={500} defaultValue={product.materials??""} placeholder="Ex.: PETG, acabamento fosco e gravação em relevo."/></label><label className="field"><span>Prazo</span><textarea name="lead_time" rows={3} maxLength={300} defaultValue={product.lead_time??""} placeholder="Ex.: produção em até 5 dias úteis."/></label></div><label className="field"><span>Personalização e observações</span><textarea name="customization_notes" rows={4} maxLength={1000} defaultValue={product.customization_notes??""} placeholder="Explique nomes, cores, medidas ou informações que serão combinadas pelo WhatsApp."/></label></div>
         <div className="form-row"><label className="field"><span>Preço normal</span><input name="price" required inputMode="decimal" defaultValue={inputMoney(product.price_cents)}/></label><label className="field"><span>Preço promocional</span><input name="sale_price" inputMode="decimal" defaultValue={inputMoney(product.sale_price_cents)}/></label></div>
-        <div className="product-switches"><label><input name="is_active" type="checkbox" defaultChecked={product.is_active}/><span>Produto ativo</span></label><label><input name="track_stock" type="checkbox" defaultChecked={product.track_stock}/><span>Controlar estoque</span></label><label className="stock-input"><span>Quantidade</span><input name="stock_quantity" type="number" min="0" defaultValue={product.stock_quantity??0}/></label></div>
+        <div className="product-switches"><label><input name="is_active" type="checkbox" defaultChecked={product.is_active}/><span>Produto ativo</span></label><label><input name="track_stock" type="checkbox" defaultChecked={product.stock_mode==="product"&&product.track_stock}/><span>Controlar estoque do produto simples</span></label><label className="stock-input"><span>Quantidade simples</span><input name="stock_quantity" type="number" min="0" defaultValue={product.stock_quantity??0}/></label></div>
+        <ProductVariationsEditor initial={variationInitial}/>
         <SubmitButton pendingText="Salvando…">Salvar alterações</SubmitButton>
       </div>
       <aside className="edit-product-media"><div className="preview-heading"><div><span>Galeria</span><strong>{images.length} de 5 imagens</strong></div></div>
