@@ -7,6 +7,7 @@ import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { formatMoney } from "@/lib/catalog";
 import { createClient } from "@/lib/supabase/server";
 import { ProductVariationsEditor } from "@/components/product-variations-editor";
+import { ProductCsvImport } from "@/components/product-csv-import";
 
 type Product = { id:string; name:string; display_position:number; price_cents:number; sale_price_cents:number|null; is_active:boolean; track_stock:boolean; stock_mode:"product"|"variant"; stock_quantity:number|null; categories:{ name:string }|null; product_images:{ storage_path:string }[]; product_variants:{stock_quantity:number|null;is_active:boolean}[] };
 
@@ -24,6 +25,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     <div className="dashboard-topbar"><div><p>Catálogo</p><h1>Produtos</h1></div><div className="catalog-count"><strong>{products.length}</strong><span>{products.length === 1 ? "produto" : "produtos"}</span></div></div>
     <p className="dashboard-intro">Cadastre o que você vende com informações claras, imagens bonitas e estoque apenas quando precisar.</p>
     <FormMessage error={message.erro} success={message.sucesso} />
+    <ProductCsvImport />
     <div className="catalog-layout">
       <div className="catalog-main">
         <details className="product-create" open={products.length === 0}><summary><span>Adicionar produto</span><b>+</b></summary>
